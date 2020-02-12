@@ -5,8 +5,8 @@ import tester.Tester;
 class Util {
 
   // converts a absolute grid position to a grid location 
-  Posn convertAbsoluteToGrid(Posn location, int width, int row) {
-    return new Posn(location.x / width, row - location.y / width);
+  Posn convertAbsoluteToGrid(Posn location, int unit, int row) {
+    return new Posn(location.x / unit, row - location.y / unit);
   }
 
   // returns a new posn which is the given posn moved in a given direction by 
@@ -30,7 +30,13 @@ class Util {
       int r = rand.nextInt(max);
       return new ConsList<Integer>(r, new IncrementAboveX(r).apply(createRandomInts(max - 1, num - 1, rand)));
     }
-  } 
+  }
+  
+  // Reverse the magnitude of the given posn in the x direction
+  Posn reverseDirX(Posn p) {
+    return new Posn(-1 * p.x, p.y);
+  }
+  
 }
 
 class ExamplesUtil {

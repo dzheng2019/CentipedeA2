@@ -8,57 +8,74 @@ import tester.Tester;
 
 class TestMove extends World {
   Random rand;
-  int width;  
+  int col;  
   int row; 
   Board b;
   IMoveableObject player;
+  IMoveableObject centipedeH;
 
   // most general constructor 
-  TestMove(int width, int height, Random rand, Board tiles, IMoveableObject player) {
+  TestMove(int col, int row, Random rand, Board b, IMoveableObject player, IMoveableObject centipedeH) {
     this.rand = rand; 
-    this.width = width;
-    this.row = height;
-    this.b = tiles;
+    this.col = col;
+    this.row = row;
+    this.b = b;
     this.player = player;
+    this.centipedeH = centipedeH;
   }
 
   // The constructor for use in "real" games
-  TestMove(int width, int height) { 
-    this(width, height, new Random());
+  TestMove(int col, int row) { 
+    this(col, row, new Random());
   }
 
   // The constructor for use in testing, with a specified Random object
-  TestMove(int width, int height, Random rand) { 
+  TestMove(int col, int row, Random rand) { 
     this.rand = rand; 
-    this.width = width;
-    this.row = height;
-    this.b = new Board(width, height);
-    this.player = new Gnome(new Posn(0, 0) , 5, 50);
-   // this.centipede = new CentipedeHead(new Posn(0, 0), 30, 5);
+    this.col = col;
+    this.row = row;
+    this.b = new Board(col, row);
+    this.player = new Gnome(new Posn(20, row*40 - 20) , 5, 15);
+    this.centipedeH =  new CentipedeHead (
+        new Posn(20, 20), 
+        4, 
+        20, 
+        0,
+        new Posn(1, 0),
+        new Posn(1, 0));
+
+
   }
-  
-  
+
+  TestMove updateTest(IMoveableObject player, IMoveableObject centipede) {
+    return new TestMove(this.col, this.row, this.rand, this.b, player, centipede);
+  }
+
   //Constants
   int units = ITile.units;
 
   public WorldScene makeScene() {   
-    WorldScene scene = new WorldScene(this.width * this.units, this.row * this.units);
-    return scene.placeImageXY(
-        b.draw(), this.width * this.units / 2 , this.row * this.units / 2).placeImageXY(
-            player.draw(), player.location().x, this.row * this.units - player.location().y);
+    WorldScene scene = new WorldScene(this.col * this.units, this.row * this.units);
+    return centipedeH.drawOnBoard(b.drawOnBoard(scene)); 
   }
-  
+
   public World onKeyEvent(String key) {
     if (key.equals("right")) {
-      return new TestMove(this.width, this.row, this.rand, this.b, this.player.move(new Posn(1 ,0)));
+      return new TestMove(this.col, this.row, this.rand, 
+          this.b, this.player.moveIfPossible(this.b, new Posn(1 ,0)), this.centipedeH);
     }
     // returns a new world with the player one to the left
     if (key.equals("left")) {
-      return new TestMove(this.width, this.row, this.rand, this.b, this.player.move(new Posn(-1 ,0)));
+      return new TestMove(this.col, this.row, this.rand, 
+          this.b, this.player.moveIfPossible(this.b, new Posn(-1 ,0)), this.centipedeH);
     }
     return this;
   }
-  
+
+  public World onTick() {
+    //return this;
+    return updateTest(this.player, this.centipedeH.move(this.b));
+  }
 }  
 
 class ExamplesMove {

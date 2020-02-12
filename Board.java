@@ -7,6 +7,7 @@ class Board {
   int row;
   int col;
   Util u = new Util();
+  int units = 40;
   
   Board(IList<IList<ITile>> gameBoard) {
     this.row = new RowLength<ITile>().apply(gameBoard);
@@ -43,23 +44,49 @@ class Board {
     return new DrawBoard().apply(this.gameBoard);
   }
   
-  boolean collisionOccurs(Posn collidePos, int size) {
-    Posn collidePosLeft = u.convertAbsoluteToGrid(new Posn(collidePos.x - size, collidePos.y), this.col, this.row);
-    Posn collidePosRight = u.convertAbsoluteToGrid(new Posn(collidePos.x + size, collidePos.y), this.col, this.row);
+  WorldScene drawOnBoard(WorldScene scene) {
+    return  scene.placeImageXY(this.draw(), this.col * this.units / 2 , this.row * this.units / 2);
+  }
+  
+  boolean collisionOccursLeft(Posn collidePos, int size) {
+    Posn collideGridLocLeft = u.convertAbsoluteToGrid(new Posn(collidePos.x - size, collidePos.y), this.col, this.row);
 
     boolean tileCollisionLeft = 
         new OrMap<IList<ITile>>(
         new OrMapListPred<ITile>(
-            new TileCollision(collidePosLeft))).apply(this.gameBoard);
+            new TileCollision(collideGridLocLeft))).apply(this.gameBoard);
+    
+    
+    boolean xCollision = collidePos.x - size < 0;
+    
+    return tileCollisionLeft || xCollision ;
+  }
+  
+  boolean collisionOccursRight(Posn collidePos, int size) {
+    Posn collideGridLocRight = u.convertAbsoluteToGrid(new Posn(collidePos.x + size, collidePos.y), this.col, this.row);
+
     
     boolean tileCollisionRight = 
         new OrMap<IList<ITile>>(
         new OrMapListPred<ITile>(
-            new TileCollision(collidePosRight))).apply(this.gameBoard);
+            new TileCollision(collideGridLocRight))).apply(this.gameBoard);
     
-    boolean xCollision = collidePos.x < 0 || collidePos.x > this.col;
-    boolean yCollision = collidePos.y < 0 || collidePos.y > this.row;
-    return tileCollisionLeft || tileCollisionRight || xCollision || yCollision;
+    int x = collidePos.x + size;
+    boolean xCollision = collidePos.x + size >= this.col * this.units;
+    
+    return tileCollisionRight || xCollision;
+  }
+  
+  boolean collisionOccurs(Posn collidePos, int size) {
+    boolean yCollision = collidePos.y - size < 0 || collidePos.y + size > this.row  * this.units;
+    
+    return yCollision || 
+        this.collisionOccursRight(collidePos, size) ||
+        this.collisionOccursLeft(collidePos, size);
+  }
+  
+  int getRow(int y, int size) {
+    return (y - size) / units;
   }
 }
 

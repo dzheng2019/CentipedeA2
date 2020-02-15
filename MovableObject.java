@@ -2,29 +2,17 @@ import java.util.Random;
 import javalib.funworld.*;
 import javalib.worldimages.*;
 import java.awt.Color;
+import java.lang.reflect.AccessibleObject;
+
 import tester.Tester;
 
-interface IMoveableObject {
-  int units = ITile.units;
-  Posn getGrid(int width, int row);
-
-  IMoveableObject moveIfPossible(Board board, Posn direction);
-  IMoveableObject moveInDirection(Board board, Posn direction);
-  IMoveableObject move(Board board);
-  IMoveableObject handleCollision(Board board);
-
-  Posn movedPos(Posn direction);
-
-  WorldImage draw();
-  WorldScene drawOnBoard(WorldScene scene);
-  Util u = new Util();
-}
-
-abstract class AMoveableObject implements IMoveableObject {
+abstract class AMoveableObject {
   Posn location;
   int speed;
   int size;
 
+  Util u = new Util();
+  
   AMoveableObject(Posn location, int speed, int size) {
     this.location = location;
     this.speed = speed;
@@ -34,18 +22,7 @@ abstract class AMoveableObject implements IMoveableObject {
   public Posn getGrid(int unit, int row) {
     return u.convertAbsoluteToGrid(location, unit, row);
   }
-
-  public IMoveableObject moveIfPossible(Board board, Posn moveDir) {
-    if (this.validMove(board, moveDir)) {
-      System.out.println("VALID");
-      return this.moveInDirection(board, moveDir);
-    }
-    else {
-      System.out.println("NOTVALID");
-      return this.handleCollision(board);
-    }
-  }
-
+  
   public Posn movedPos(Posn direction) {
     return u.moveInDirection(this.location, direction, this.speed);
   }
@@ -54,6 +31,8 @@ abstract class AMoveableObject implements IMoveableObject {
     return !board.collisionOccurs(u.moveInDirection(this.location, moveDir, this.speed), this.size);
   }
 
+  abstract WorldImage draw();
+  
   public WorldScene drawOnBoard(WorldScene scene) {
     return scene.placeImageXY(this.draw(), location.x, location.y);
   }
@@ -69,61 +48,109 @@ class Gnome extends AMoveableObject {
     return new CircleImage(this.size, OutlineMode.SOLID, Color.BLUE);
   }
 
-  @Override
   // Moves this gnome for each tick which passes in this game
   // (this does nothing because gnomes do not move without key input)
-  public IMoveableObject move(Board board) {
+  Gnome move(Board board) {
     // TODO Auto-generated method stub
     return this;
   }
 
+  Gnome moveIfPossible(Board board, Posn moveDir) {
+    if (this.validMove(board, moveDir)) {
+      return this.moveInDirection(board, moveDir);
+    }
+    else {
+      return this;
+    }
+  }
+  
   // Moves this gnome in the given direction without consideration for collisions
-  @Override
-  public IMoveableObject moveInDirection(Board board, Posn direction) {
+  Gnome moveInDirection(Board board, Posn direction) {
     // TODO Auto-generated method stub
     return new Gnome(this.movedPos(direction), this.speed, this.size);
   }
 
-  // Moves the gnome if the user key input results in a collision with a wall
-  // or obstacle (returns this because gnomes can not move in special ways after collisions)
-  @Override
-  public IMoveableObject handleCollision(Board board) {
-    // TODO Auto-generated method stub
-    return this;
+  Gnome gnomeWithSpeed(int speed) {
+    return new Gnome(this.location, speed, size);
   }
-
+  
 }
 
-class Dart extends AMoveableObject {
+class Dart extends AMoveableObject{
 
   Dart(Posn location, int speed, int size) {
     super(location, speed, size);
   }
 
-  @Override
+   
   public WorldImage draw() {
-    return new EmptyImage();
+    return new RectangleImage(this.size / 3, this.size / 2, 
+        OutlineMode.SOLID, Color.BLUE);
   }
 
-  @Override
+   
   // Moves this dart up if possible to do so
-  public IMoveableObject move(Board board) {
-    return this.moveIfPossible(board, new Posn(0, 1));
+  Dart move(Board board) {
+    return this.moveInDirection(board, new Posn(0, -1));
   }
 
-  @Override
+   
   // Moves this dart in the 
-  public IMoveableObject moveInDirection(Board board, Posn direction) {
+  Dart moveInDirection(Board board, Posn direction) {
     // TODO Auto-generated method stub
     return new Dart(this.movedPos(direction), this.speed, this.size);
   }
 
-  @Override
-  public IMoveableObject handleCollision(Board board) {
-    // TODO Auto-generated method stub
-    return this;
+  boolean collisionWithBoard(Board b) {
+    // darts only collide with things in their column
+    return b.collisionOccurs(this.location, 0);
   }
+  
+  
+  // only used when a collision occurs
+  Board transformBoard(Board board, boolean createPebble) {
+    return board.changeAtLocation(this.location, createPebble);
+  }
+  
+  boolean collisionWithCentipedes(IList<CentipedeSeg> centipedes) {
+    return new OrMap<CentipedeSeg>(new DartCentipedeCollide(this.location)).apply(centipedes);
+  }
+
 }
+
+class DartCentipedeCollide implements ICentipedeVisitor<Boolean>, IPred<CentipedeSeg> {
+
+  Posn location;
+  Util u = new Util();
+  
+  DartCentipedeCollide(Posn location) {
+    this.location = location;
+  }
+  
+  @Override
+  public Boolean apply(CentipedeSeg arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public Boolean visitSeg(CentipedeSeg seg) {
+    // TODO Auto-generated method stub
+    return u.posnInRadius(seg.location, this.location, seg.size);
+  }
+
+  @Override
+  public Boolean visitHead(CentipedeHead head) {
+    // TODO Auto-generated method stub
+    return u.posnInRadius(head.location, this.location, head.size);
+  }  
+}
+
+
+
+
+
+
 
 class CentipedeSeg extends AMoveableObject {
   int currentLevel;
@@ -139,24 +166,37 @@ class CentipedeSeg extends AMoveableObject {
     this.leftOrRight = leftOrRight;
   }
 
-  @Override
-  public IMoveableObject move(Board board) {
+   
+  CentipedeSeg move(Board board) {
     return this.moveIfPossible(board, leftOrRight);
   }
 
 
-  public IMoveableObject moveInDirection(Board board,Posn direction) {
-    System.out.println("SEG MOVE");
+   CentipedeSeg moveInDirection(Board board,Posn direction) {
+    if (board.getRow(this.location.y, size) == currentLevel) {
     return new CentipedeSeg(
         this.movedPos(direction), 
         this.speed, 
         this.size, 
         this.currentLevel,
         this.leftOrRight);
+    } 
+    else {
+      return this.turnAround(board);
+    }
   }
 
-  @Override
-  public IMoveableObject handleCollision(Board board) {
+  CentipedeSeg moveIfPossible(Board board, Posn moveDir) {
+    if (this.validMove(board, moveDir)) {
+      return this.moveInDirection(board, moveDir);
+    }
+    else {
+      return this.handleCollision(board);
+    }
+  }
+  
+   
+  CentipedeSeg handleCollision(Board board) {
     if (board.getRow(this.location.y, size) == currentLevel) {
       return this.moveInDirection(board, new Posn(0, 1));
     }
@@ -168,15 +208,15 @@ class CentipedeSeg extends AMoveableObject {
   public boolean validMove(Board board, Posn moveDir) {
     if (this.leftOrRight.x == -1) {
       return !board.collisionOccursLeft(
-          u.moveInDirection(this.location, moveDir, this.speed), this.size);
+          u.moveInDirection(new Posn(this.location.x, this.location.y - size), moveDir, this.speed), this.size);
     } else {
       return !board.collisionOccursRight(
-          u.moveInDirection(this.location, moveDir, this.speed), this.size)
+          u.moveInDirection(new Posn(this.location.x, this.location.y - size), moveDir, this.speed), this.size)
           || this.location.x < 0;
     }
   }
 
-  IMoveableObject turnAround(Board board) {
+  CentipedeSeg turnAround(Board board) {
     Posn direction = new Posn(-this.leftOrRight.x, 0);
     return new CentipedeSeg(
         this.movedPos(direction), 
@@ -190,12 +230,16 @@ class CentipedeSeg extends AMoveableObject {
   public WorldImage draw() {
     return new CircleImage(this.size, OutlineMode.SOLID, Color.BLACK);
   }
+  
+  public <T> T accept(ICentipedeVisitor<T> func) {
+    return func.visitSeg(this);
+  }
 }
 
 
 class CentipedeHead extends CentipedeSeg{
 
-  IList<IMoveableObject> tail;
+  IList<CentipedeSeg> tail;
   Posn curDir;
 
 
@@ -205,7 +249,7 @@ class CentipedeHead extends CentipedeSeg{
       int size, 
       int currentLevel,
       Posn leftOrRight,
-      IList<IMoveableObject> tail, 
+      IList<CentipedeSeg> tail, 
       Posn curDir) {
     super(location, speed, size, currentLevel, leftOrRight);
     this.tail = tail;
@@ -226,12 +270,12 @@ class CentipedeHead extends CentipedeSeg{
     this.curDir = curDir;
   }
 
-  IList<IMoveableObject> createTail(int num) {
+  IList<CentipedeSeg> createTail(int num) {
     if (num == 0) {
-      return new MtList<IMoveableObject>();
+      return new MtList<CentipedeSeg>();
     }
     else {
-      return new ConsList<IMoveableObject>(
+      return new ConsList<CentipedeSeg>(
           new CentipedeSeg(
               new Posn(this.location.x - num*40, this.location.y), 
               this.speed, 
@@ -241,7 +285,8 @@ class CentipedeHead extends CentipedeSeg{
     }
   }
 
-  public IMoveableObject moveInDirection(Board board, Posn moveDir) {
+  CentipedeHead moveInDirection(Board board, Posn moveDir) {
+    if (board.getRow(this.location.y, size) == currentLevel) {
     return new CentipedeHead(
         this.movedPos(moveDir), 
         this.speed, 
@@ -250,9 +295,13 @@ class CentipedeHead extends CentipedeSeg{
         this.leftOrRight, 
         new MoveFoward(board).apply(this.tail),
         moveDir);
+    } 
+    else {
+      return this.turnAround(board);
+    }
   }
 
-  IMoveableObject turnAround(Board board) {
+  CentipedeHead turnAround(Board board) {
     Posn direction = new Posn(-this.leftOrRight.x, 0);
     return new CentipedeHead(
         this.movedPos(direction), 
@@ -264,7 +313,7 @@ class CentipedeHead extends CentipedeSeg{
         direction);
   }
 
-  @Override
+   
   public WorldImage draw() {
     WorldImage head = 
         new EquilateralTriangleImage(
@@ -287,9 +336,21 @@ class CentipedeHead extends CentipedeSeg{
   public WorldScene drawOnBoard(WorldScene scene) {
     return new DrawTail(scene.placeImageXY(this.draw(), location.x, location.y)).apply(this.tail);
   }
+  
+  public <T> T accept(ICentipedeVisitor<T> func) {
+    return func.visitHead(this);
+  }
 }
 
-class MoveFoward implements IListVisitor<IMoveableObject, IList<IMoveableObject>> {
+interface ICentipedeVisitor<T> extends IFunc<CentipedeSeg, T> {
+  T visitSeg(CentipedeSeg seg);
+  T visitHead(CentipedeHead head);
+}
+
+
+
+
+class MoveFoward implements IListVisitor<CentipedeSeg, IList<CentipedeSeg>> {
 
   Board board;
 
@@ -297,28 +358,28 @@ class MoveFoward implements IListVisitor<IMoveableObject, IList<IMoveableObject>
     this.board = board;
   }
 
-  @Override
-  public IList<IMoveableObject> apply(IList<IMoveableObject> arg) {
+   
+  public IList<CentipedeSeg> apply(IList<CentipedeSeg> arg) {
     // TODO Auto-generated method stub
     return arg.accept(this);
   }
 
-  @Override
-  public IList<IMoveableObject> visitMt(MtList<IMoveableObject> mt) {
+   
+  public IList<CentipedeSeg> visitMt(MtList<CentipedeSeg> mt) {
     // TODO Auto-generated method stub
     return mt;
   }
 
-  @Override
-  public IList<IMoveableObject> visitCons(ConsList<IMoveableObject> cons) {
+   
+  public IList<CentipedeSeg> visitCons(ConsList<CentipedeSeg> cons) {
     // TODO Auto-generated method stub
-    return new ConsList<IMoveableObject>(
+    return new ConsList<CentipedeSeg>(
         cons.first.move(board), cons.rest.accept(this));
   }
 
 }
 
-class DrawTail implements IListVisitor<IMoveableObject, WorldScene> {
+class DrawTail implements IListVisitor<CentipedeSeg, WorldScene> {
 
   WorldScene scene;
 
@@ -326,20 +387,20 @@ class DrawTail implements IListVisitor<IMoveableObject, WorldScene> {
     this.scene = scene;
   }
 
-  @Override
-  public WorldScene apply(IList<IMoveableObject> arg) {
+   
+  public WorldScene apply(IList<CentipedeSeg> arg) {
     // TODO Auto-generated method stub
     return arg.accept(this);
   }
 
-  @Override
-  public WorldScene visitMt(MtList<IMoveableObject> mt) {
+   
+  public WorldScene visitMt(MtList<CentipedeSeg> mt) {
     // TODO Auto-generated method stub
     return scene;
   }
 
-  @Override
-  public WorldScene visitCons(ConsList<IMoveableObject> cons) {
+   
+  public WorldScene visitCons(ConsList<CentipedeSeg> cons) {
     return new DrawTail(cons.first.drawOnBoard(scene)).apply(cons.rest);
   }
 

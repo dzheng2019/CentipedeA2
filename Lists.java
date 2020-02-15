@@ -12,12 +12,12 @@ class MtList<T> implements IList<T> {
   public <U> U accept(IListVisitor<T, U> visitor) {
     return visitor.visitMt(this);
   }
-  
+
   // return the length of this (0 because empty)
   public int length() {
     return 0;
   }
-  
+
 }
 
 // represents a element in a list of type t
@@ -48,7 +48,7 @@ interface IFunc<A, R> {
 }
 
 interface IPred<A> extends IFunc<A, Boolean> {
-  
+
 }
 
 //a visitor that visits lists
@@ -64,11 +64,11 @@ interface IListVisitor<T, R> extends IFunc<IList<T>, R> {
 class OrMap<T> implements IListVisitor<T, Boolean> {
 
   IPred<T> pred;
-  
+
   OrMap(IPred<T> pred) {
     this.pred = pred;
   }
-  
+
   @Override
   public Boolean apply(IList<T> arg) {
     // TODO Auto-generated method stub
@@ -86,22 +86,22 @@ class OrMap<T> implements IListVisitor<T, Boolean> {
     // TODO Auto-generated method stub
     return pred.apply(cons.first) || this.apply(cons.rest);
   }
-  
+
 }
 
 class OrMapListPred<T> implements IPred<IList<T>> {
 
   IPred<T> pred;
-  
+
   OrMapListPred(IPred<T> pred) {
     this.pred = pred;
   }
-  
+
   @Override
   public Boolean apply(IList<T> arg) {
     return new OrMap<T>(this.pred).apply(arg);
   }
-  
+
 }
 
 class RowLength<T> implements IListVisitor<IList<T>, Integer> {
@@ -127,7 +127,7 @@ class RowLength<T> implements IListVisitor<IList<T>, Integer> {
 class Map<T, R> implements IListVisitor<T, IList<R>> {
 
   IFunc<T, R> func; 
-  
+
   Map(IFunc<T, R> func) {
     this.func = func;
   }
@@ -155,16 +155,133 @@ class Map<T, R> implements IListVisitor<T, IList<R>> {
 class MapList<T, R> implements IFunc<IList<T>, IList<R>> {
 
   IFunc<T, R> func;
-  
+
   MapList(IFunc<T, R> func) {
     this.func = func;
   }
-  
+
   @Override
   public IList<R> apply(IList<T> arg) {
     return new Map<T, R>(func).apply(arg);
   } 
 }
+
+class ContainsInt implements IPred<Integer> {
+
+  int check;
+
+  ContainsInt(int check) {
+    this.check = check;
+  }
+
+  @Override
+  public Boolean apply(Integer arg) {
+    // TODO Auto-generated method stub
+    return arg.intValue() == check;
+  }
+
+}
+
+class ChangeAtX<T> implements IListVisitor<T, IList<T>> {
+  IFunc<T, T> func;
+  int n;
+
+  ChangeAtX(IFunc<T, T> func, int n) {
+    this.func = func;
+    this.n = n;
+  }
+
+  @Override
+  public IList<T> apply(IList<T> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<T> visitMt(MtList<T> mt) {
+    // TODO Auto-generated method stub
+    return new MtList<T>();
+  }
+
+  @Override
+  public IList<T> visitCons(ConsList<T> cons) {
+    if (n < 0) {
+      return cons;
+    }
+    if (n == 0) {
+      return new ConsList<T>(func.apply(cons.first), cons.rest);
+    }
+    else {
+      return new ConsList<T>(cons.first, new ChangeAtX<T>(func, n - 1).apply(cons.rest));
+    }
+  }
+}
+
+class ChangeAtXY<T> implements IListVisitor<IList<T>, IList<IList<T>>> {
+
+  IFunc<T, T> func;
+  int n;
+  int r;
+
+  ChangeAtXY(IFunc<T, T> func, int n, int r) {
+    this.func = func;
+    this.n = n;
+    this.r = r;
+  }
+
+  @Override
+  public IList<IList<T>> apply(IList<IList<T>> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<IList<T>> visitMt(MtList<IList<T>> mt) {
+    // TODO Auto-generated method stub
+    return mt;
+  }
+
+  @Override
+  public IList<IList<T>> visitCons(ConsList<IList<T>> cons) {
+    if (r < 0) {
+      return cons;
+    }
+    if (r == 0) {
+      return new ConsList<IList<T>>(
+          new ChangeAtX<T>(func, n).apply(cons.first), cons.rest);
+    }
+    else {
+      return new ConsList<IList<T>>(cons.first,
+          new ChangeAtXY<T>(func, n, r - 1).apply(cons.rest));
+    }
+  } 
+}
+
+class MakeThree implements IFunc<Integer, Integer> {
+
+  @Override
+  public Integer apply(Integer arg) {
+    // TODO Auto-generated method stub
+    return 3;
+  }
+
+}
+
+class ExamplesList {
+  IList<Integer> OneDInt =
+      new ConsList<Integer>(5, 
+          new ConsList<Integer>(5, 
+              new ConsList<Integer>(5, 
+                  new ConsList<Integer>(5, new MtList<Integer>()))));
+  IList<IList<Integer>> TwoDInt = 
+      new ConsList<IList<Integer>>(OneDInt,
+          new ConsList<IList<Integer>>(OneDInt, new MtList<IList<Integer>>()));
+
+  IList<IList<Integer>> TwoDIntM = new ChangeAtXY<Integer>(new MakeThree(), 3, 1).apply(TwoDInt);
+  
+  
+}
+
 
 
 

@@ -11,17 +11,20 @@ class TestMove extends World {
   int col;  
   int row; 
   Board b;
-  IMoveableObject player;
-  IMoveableObject centipedeH;
-
+  Gnome player;
+  CentipedeSeg centipedeH;
+  Dart dart;
+  
   // most general constructor 
-  TestMove(int col, int row, Random rand, Board b, IMoveableObject player, IMoveableObject centipedeH) {
+  TestMove(int col, int row, Random rand, Board b, 
+      Gnome player, CentipedeSeg centipedeH, Dart dart) {
     this.rand = rand; 
     this.col = col;
     this.row = row;
     this.b = b;
     this.player = player;
     this.centipedeH = centipedeH;
+    this.dart = dart;
   }
 
   // The constructor for use in "real" games
@@ -34,21 +37,20 @@ class TestMove extends World {
     this.rand = rand; 
     this.col = col;
     this.row = row;
-    this.b = new Board(col, row);
+    this.b = new Board(col, row).randomBoard(false, 20, new Random());
     this.player = new Gnome(new Posn(20, row*40 - 20) , 5, 15);
     this.centipedeH =  new CentipedeHead (
         new Posn(20, 20), 
-        4, 
+        10, 
         20, 
         0,
         new Posn(1, 0),
         new Posn(1, 0));
-
-
+    this.dart = new Dart(new Posn(20, row*40 - 20) , 5, 15);
   }
 
-  TestMove updateTest(IMoveableObject player, IMoveableObject centipede) {
-    return new TestMove(this.col, this.row, this.rand, this.b, player, centipede);
+  TestMove updateTest(Gnome player, CentipedeSeg centipede, Dart dart) {
+    return new TestMove(this.col, this.row, this.rand, this.b, player, centipede, dart);
   }
 
   //Constants
@@ -61,29 +63,32 @@ class TestMove extends World {
 
   public World onKeyEvent(String key) {
     if (key.equals("right")) {
-      return new TestMove(this.col, this.row, this.rand, 
-          this.b, this.player.moveIfPossible(this.b, new Posn(1 ,0)), this.centipedeH);
+      return this.updateTest(this.player.moveIfPossible(this.b, new Posn(1 ,0)), this.centipedeH, this.dart);
     }
     // returns a new world with the player one to the left
     if (key.equals("left")) {
-      return new TestMove(this.col, this.row, this.rand, 
-          this.b, this.player.moveIfPossible(this.b, new Posn(-1 ,0)), this.centipedeH);
+      return this.updateTest(this.player.moveIfPossible(this.b, new Posn(-1 ,0)), this.centipedeH, this.dart);
     }
+    
+
     return this;
   }
 
   public World onTick() {
     //return this;
-    return updateTest(this.player, this.centipedeH.move(this.b));
+    return updateTest(this.player, this.centipedeH.move(this.b), this.dart);
   }
 }  
 
 class ExamplesMove {
+  int row = 19;
+  int col = 5;
+  World w = new TestMove(row, col);
+  
   boolean testBigBang(Tester t) {
-    World w = new TestMove(6, 6);
-    int worldWidth = 40 * 6;
-    int worldHeight = 40 * 6;
-    double tickRate = .1;
+    int worldWidth = 40 * col;
+    int worldHeight = 40 * row;
+    double tickRate = .05;
     return w.bigBang(worldWidth, worldHeight, tickRate);
   }
 }

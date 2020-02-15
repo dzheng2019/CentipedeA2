@@ -15,6 +15,8 @@ interface ITile {
 
   // does the given position collide with this tile
   boolean collidesWith(Posn collidePos);
+  
+  <T> T accept(IFuncTile<T> func);
 }
 
 // represents a tile 
@@ -44,7 +46,7 @@ abstract class ATile implements ITile {
   //does the given position collide with this tile
   public boolean collidesWith(Posn collidePos) {
     // TODO Auto-generated method stub
-    return util.posnEqual(this.gridLocation, collidePos);
+    return false;
   }
   
 }
@@ -83,12 +85,15 @@ class Grass extends ATile {
         new RectangleImage(units, units, OutlineMode.SOLID, Color.GREEN));
   }
 
-  @Override
 
-  public boolean collidesWith(Posn collidePos) {
+
+  @Override
+  public <T> T accept(IFuncTile<T> func) {
     // TODO Auto-generated method stub
-    return false;
+    return func.visitGrass(this);
   }
+
+
 }
 
 // represents a dandelion tile
@@ -112,7 +117,15 @@ class Dandelions extends ATile {
         new RectangleImage(units, units, OutlineMode.SOLID, Color.YELLOW));
   }
 
+  @Override
+  public <T> T accept(IFuncTile<T> func) {
+    // TODO Auto-generated method stub
+    return func.visitDandelions(this);
+  }
   
+  public boolean collidesWith(Posn collidePos) {
+    return util.posnEqual(this.gridLocation, collidePos);
+  }
 }
 
 // represents a pebbles tile
@@ -133,5 +146,11 @@ class Pebbles extends ATile {
      */
     return new OverlayImage(new RectangleImage(units, units, OutlineMode.OUTLINE, Color.BLACK),
         new RectangleImage(units, units, OutlineMode.SOLID, Color.GRAY));
+  }
+
+  @Override
+  public <T> T accept(IFuncTile<T> func) {
+    // TODO Auto-generated method stub
+    return func.visitPebbles(this);
   }
 }

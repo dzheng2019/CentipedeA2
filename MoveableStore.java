@@ -2,6 +2,8 @@
 //import javalib.funworld.*;
 //import javalib.worldimages.*;
 //import java.awt.Color;
+//import java.lang.reflect.AccessibleObject;
+//
 //import tester.Tester;
 //
 //interface IMoveableObject {
@@ -9,7 +11,7 @@
 //  Posn getGrid(int width, int row);
 //
 //  IMoveableObject moveIfPossible(Board board, Posn direction);
-//  IMoveableObject moveInDirection(Posn direction);
+//  IMoveableObject moveInDirection(Board board, Posn direction);
 //  IMoveableObject move(Board board);
 //  IMoveableObject handleCollision(Board board);
 //
@@ -37,17 +39,16 @@
 //
 //  public IMoveableObject moveIfPossible(Board board, Posn moveDir) {
 //    if (this.validMove(board, moveDir)) {
-//      return this.moveInDirection(moveDir);
+//      return this.moveInDirection(board, moveDir);
 //    }
 //    else {
 //      return this.handleCollision(board);
 //    }
 //  }
-//
+//  
 //  public Posn movedPos(Posn direction) {
 //    return u.moveInDirection(this.location, direction, this.speed);
 //  }
-//
 //
 //  public boolean validMove(Board board, Posn moveDir) {
 //    return !board.collisionOccurs(u.moveInDirection(this.location, moveDir, this.speed), this.size);
@@ -64,8 +65,6 @@
 //    super(location, speed, size);
 //  }
 //
-//
-//  @Override
 //  public WorldImage draw() {
 //    return new CircleImage(this.size, OutlineMode.SOLID, Color.BLUE);
 //  }
@@ -78,10 +77,9 @@
 //    return this;
 //  }
 //
-//
 //  // Moves this gnome in the given direction without consideration for collisions
 //  @Override
-//  public IMoveableObject moveInDirection(Posn direction) {
+//  public IMoveableObject moveInDirection(Board board, Posn direction) {
 //    // TODO Auto-generated method stub
 //    return new Gnome(this.movedPos(direction), this.speed, this.size);
 //  }
@@ -96,7 +94,11 @@
 //
 //}
 //
-//class Dart extends AMoveableObject {
+//interface MaybeDart extends IMoveableObject {
+//  boolean exisitsOnBoard();
+//}
+//
+//class Dart extends AMoveableObject implements MaybeDart {
 //
 //  Dart(Posn location, int speed, int size) {
 //    super(location, speed, size);
@@ -104,107 +106,93 @@
 //
 //  @Override
 //  public WorldImage draw() {
-//    return new EmptyImage();
+//    return new RectangleImage(this.size / 4, this.size, 
+//        OutlineMode.SOLID, Color.MAGENTA);
 //  }
 //
 //  @Override
 //  // Moves this dart up if possible to do so
 //  public IMoveableObject move(Board board) {
-//    return this.moveIfPossible(board, new Posn(0, 1));
+//    return this.moveIfPossible(board, new Posn(0, -1));
 //  }
 //
 //  @Override
 //  // Moves this dart in the 
-//  public IMoveableObject moveInDirection(Posn direction) {
+//  public IMoveableObject moveInDirection(Board board, Posn direction) {
 //    // TODO Auto-generated method stub
 //    return new Dart(this.movedPos(direction), this.speed, this.size);
 //  }
 //
+//  @Override
+//  public IMoveableObject handleCollision(Board board) {
+//    return new NotDart();
+//    
+//  }
+//
+//  @Override
+//  public boolean exisitsOnBoard() {
+//    // TODO Auto-generated method stub
+//    return true;
+//  }
+//}
+//
+//
+//class NotDart extends AMoveableObject implements MaybeDart {
+//
+//  NotDart() {
+//    super(new Posn(0,0), 0, 0);
+//  }
+//  
+//  NotDart(Posn location, int speed, int size) {
+//    super(location, speed, size);
+//  }
+//  
+//  @Override
+//  public IMoveableObject moveInDirection(Board board, Posn direction) {
+//    // TODO Auto-generated method stub
+//    return this;
+//  }
+//
+//  @Override
+//  public IMoveableObject move(Board board) {
+//    // TODO Auto-generated method stub
+//    return this;
+//  }
 //
 //  @Override
 //  public IMoveableObject handleCollision(Board board) {
 //    // TODO Auto-generated method stub
 //    return this;
 //  }
-//}
 //
-//class CentipedeHead extends AMoveableObject{
-//
-//  IList<ISegment> tail;
-//  Posn leftOrRight;
-//  Posn curDir;
-//  int currentLevel;
-//
-//  CentipedeHead (
-//      Posn location, 
-//      int speed, 
-//      int size, 
-//      IList<ISegment> tail, 
-//      Posn leftOrRight, 
-//      Posn curDir,
-//      int currentLevel) {
-//    super(location, speed, size);
-//    this.tail = tail;
-//    this.leftOrRight = leftOrRight;
-//    this.curDir = curDir;
-//    this.currentLevel = currentLevel;
-//  }
-//
-//  CentipedeHead (      
-//      Posn location, 
-//      int speed, 
-//      int size, 
-//      Posn leftOrRight, 
-//      Posn curDir,
-//      int currentLevel) {
-//    super(location, speed, size);
-//    this.tail = this.createTail(10);
-//    this.leftOrRight = leftOrRight;
-//    this.curDir = curDir;
-//    this.currentLevel = currentLevel;    
-//  }
-//
-//  IList<ISegment> createTail (int num) {
-//
-//    if (num == 1) {
-//      return createNode(new MtList<ISegment>());
-//    }
-//    else {
-//      return createNode(this.createTail(num-1));
-//    }
-//  }
-//
-//  IList<ISegment> createNode(IList<ISegment> rest) {
-//    ISegment cent = new CentSeg(new Posn (-250, -250), 16);
-//    ISegment gap = new Gap(new Posn(-250, -250));
-//    return 
-//        new ConsList<ISegment>(gap,
-//            new ConsList<ISegment>(gap,
-//                new ConsList<ISegment>(gap, 
-//                    new ConsList<ISegment>(gap,
-//                        new ConsList<ISegment>(gap,
-//                            new ConsList<ISegment>(gap, 
-//                                new ConsList<ISegment>(gap,
-//                                    new ConsList<ISegment>(gap,
-//                                        new ConsList<ISegment>(gap, 
-//                                            new ConsList<ISegment>(gap,
-//                                                new ConsList<ISegment>(gap,
-//                                                    new ConsList<ISegment>(gap,
-//                    new ConsList<ISegment>(cent, rest)))))))))))));
+//  @Override
+//  public WorldImage draw() {
+//    // TODO Auto-generated method stub
+//    return new EmptyImage();
 //  }
 //
 //  @Override
-//  public IMoveableObject moveInDirection(Posn direction) {
-//    return new CentipedeHead(
-//        this.movedPos(direction), 
-//        this.speed, 
-//        this.size,
-//        new MoveFoward(u.moveInDirection(this.location, direction, this.speed)).apply(this.tail),
-//        this.leftOrRight,
-//        direction, 
-//        this.currentLevel);
+//  public boolean exisitsOnBoard() {
+//    // TODO Auto-generated method stub
+//    return false;
 //  }
+//  
+//}
 //
+//
+//class CentipedeSeg extends AMoveableObject {
+//  int currentLevel;
+//  Posn leftOrRight;
+//  CentipedeSeg (
+//      Posn location, 
+//      int speed, 
+//      int size, 
+//      int currentLevel,
+//      Posn leftOrRight) {
+//    super(location, speed, size);
+//    this.currentLevel = currentLevel;
+//    this.leftOrRight = leftOrRight;
+//  }
 //
 //  @Override
 //  public IMoveableObject move(Board board) {
@@ -212,41 +200,189 @@
 //  }
 //
 //
-//  @Override
-//  public IMoveableObject handleCollision(Board board) {
-//    return handleCollisionHelper(
-//        board.getRow(this.location.y, size) == currentLevel);
+//  public IMoveableObject moveInDirection(Board board,Posn direction) {
+//    if (board.getRow(this.location.y, size) == currentLevel) {
+//    return new CentipedeSeg(
+//        this.movedPos(direction), 
+//        this.speed, 
+//        this.size, 
+//        this.currentLevel,
+//        this.leftOrRight);
+//    } 
+//    else {
+//      return this.turnAround(board);
+//    }
 //  }
 //
-//  IMoveableObject handleCollisionHelper(boolean hit) {
-//    if (hit) {
-//      return this.moveInDirection(new Posn(0, 1));
+//  @Override
+//  public IMoveableObject handleCollision(Board board) {
+//    if (board.getRow(this.location.y, size) == currentLevel) {
+//      return this.moveInDirection(board, new Posn(0, 1));
 //    }
 //    else {
-//      Posn direction = new Posn(-this.leftOrRight.x, 0);
-//      return new CentipedeHead(
-//          this.movedPos(direction), 
-//          this.speed, 
-//          this.size,
-//          new MoveFoward(u.moveInDirection(this.location, direction, this.speed)).apply(this.tail),
-//          direction, 
-//          direction,
-//          this.currentLevel + 1);
+//      return this.turnAround(board);
 //    }
+//  }
+//
+//  public boolean validMove(Board board, Posn moveDir) {
+//    if (this.leftOrRight.x == -1) {
+//      return !board.collisionOccursLeft(
+//          u.moveInDirection(new Posn(this.location.x, this.location.y - size), moveDir, this.speed), this.size);
+//    } else {
+//      return !board.collisionOccursRight(
+//          u.moveInDirection(new Posn(this.location.x, this.location.y - size), moveDir, this.speed), this.size)
+//          || this.location.x < 0;
+//    }
+//  }
+//
+//  IMoveableObject turnAround(Board board) {
+//    Posn direction = new Posn(-this.leftOrRight.x, 0);
+//    return new CentipedeSeg(
+//        this.movedPos(direction), 
+//        this.speed, 
+//        this.size,
+//        this.currentLevel + 1,
+//        direction);
+//
+//  }
+//
+//  public WorldImage draw() {
+//    return new CircleImage(this.size, OutlineMode.SOLID, Color.BLACK);
+//  }
+//}
+//
+//
+//class CentipedeHead extends CentipedeSeg{
+//
+//  IList<IMoveableObject> tail;
+//  Posn curDir;
+//
+//
+//  CentipedeHead (
+//      Posn location, 
+//      int speed, 
+//      int size, 
+//      int currentLevel,
+//      Posn leftOrRight,
+//      IList<IMoveableObject> tail, 
+//      Posn curDir) {
+//    super(location, speed, size, currentLevel, leftOrRight);
+//    this.tail = tail;
+//    this.leftOrRight = leftOrRight;
+//    this.curDir = curDir;
+//  }
+//
+//  CentipedeHead (
+//      Posn location, 
+//      int speed, 
+//      int size, 
+//      int currentLevel,
+//      Posn leftOrRight, 
+//      Posn curDir) {
+//    super(location, speed, size, currentLevel, leftOrRight);
+//    this.tail = this.createTail(10);
+//    this.leftOrRight = leftOrRight;
+//    this.curDir = curDir;
+//  }
+//
+//  IList<IMoveableObject> createTail(int num) {
+//    if (num == 0) {
+//      return new MtList<IMoveableObject>();
+//    }
+//    else {
+//      return new ConsList<IMoveableObject>(
+//          new CentipedeSeg(
+//              new Posn(this.location.x - num*40, this.location.y), 
+//              this.speed, 
+//              this.size, 
+//              0,
+//              this.leftOrRight), createTail(num - 1));
+//    }
+//  }
+//
+//  public IMoveableObject moveInDirection(Board board, Posn moveDir) {
+//    if (board.getRow(this.location.y, size) == currentLevel) {
+//    return new CentipedeHead(
+//        this.movedPos(moveDir), 
+//        this.speed, 
+//        this.size,
+//        this.currentLevel,
+//        this.leftOrRight, 
+//        new MoveFoward(board).apply(this.tail),
+//        moveDir);
+//    } 
+//    else {
+//      return this.turnAround(board);
+//    }
+//  }
+//
+//  IMoveableObject turnAround(Board board) {
+//    Posn direction = new Posn(-this.leftOrRight.x, 0);
+//    return new CentipedeHead(
+//        this.movedPos(direction), 
+//        this.speed, 
+//        this.size,
+//        this.currentLevel + 1,
+//        direction,
+//        new MoveFoward(board).apply(this.tail),
+//        direction);
 //  }
 //
 //  @Override
 //  public WorldImage draw() {
-//    return new EquilateralTriangleImage(this.size * 2, OutlineMode.SOLID, Color.RED).movePinholeTo(new Posn(0, 0));
+//    WorldImage head = 
+//        new EquilateralTriangleImage(
+//            this.size * 2, 
+//            OutlineMode.SOLID, Color.RED).movePinholeTo(new Posn(0, 0));
+//    if (curDir.x == 1) {
+//      return new RotateImage(head, 90);
+//    }
+//    else if (curDir.x == -1) {
+//      return new RotateImage(head, -90);
+//    }
+//    else if (curDir.y == 1) {
+//      return new RotateImage(head, 180);
+//    }
+//    else {
+//      return head;
+//    }
 //  }
 //
 //  public WorldScene drawOnBoard(WorldScene scene) {
 //    return new DrawTail(scene.placeImageXY(this.draw(), location.x, location.y)).apply(this.tail);
 //  }
+//}
+//
+//class MoveFoward implements IListVisitor<IMoveableObject, IList<IMoveableObject>> {
+//
+//  Board board;
+//
+//  MoveFoward(Board board) {
+//    this.board = board;
+//  }
+//
+//  @Override
+//  public IList<IMoveableObject> apply(IList<IMoveableObject> arg) {
+//    // TODO Auto-generated method stub
+//    return arg.accept(this);
+//  }
+//
+//  @Override
+//  public IList<IMoveableObject> visitMt(MtList<IMoveableObject> mt) {
+//    // TODO Auto-generated method stub
+//    return mt;
+//  }
+//
+//  @Override
+//  public IList<IMoveableObject> visitCons(ConsList<IMoveableObject> cons) {
+//    // TODO Auto-generated method stub
+//    return new ConsList<IMoveableObject>(
+//        cons.first.move(board), cons.rest.accept(this));
+//  }
 //
 //}
 //
-//class DrawTail implements IListVisitor<ISegment, WorldScene> {
+//class DrawTail implements IListVisitor<IMoveableObject, WorldScene> {
 //
 //  WorldScene scene;
 //
@@ -255,114 +391,21 @@
 //  }
 //
 //  @Override
-//  public WorldScene apply(IList<ISegment> arg) {
+//  public WorldScene apply(IList<IMoveableObject> arg) {
 //    // TODO Auto-generated method stub
 //    return arg.accept(this);
 //  }
 //
 //  @Override
-//  public WorldScene visitMt(MtList<ISegment> mt) {
-//    return this.scene;
-//  }
-//
-//  @Override
-//  public WorldScene visitCons(ConsList<ISegment> cons) {
-//    return new DrawTail(cons.first.drawOnBoard(scene)).apply(cons.rest);
-//  }
-//
-//}
-//
-//
-//class MoveFoward implements IListVisitor<ISegment, IList<ISegment>> {
-//  Posn moveInDirectionLocation;
-//  MoveFoward(Posn moveInDirectionLocation) {
-//    this.moveInDirectionLocation = moveInDirectionLocation;
-//  }
-//
-//  @Override
-//  public IList<ISegment> apply(IList<ISegment> arg) {
-//    return arg.accept(this);
-//  }
-//
-//  @Override
-//  public IList<ISegment> visitMt(MtList<ISegment> mt) {
-//    return mt;
-//  }
-//
-//  @Override
-//  public IList<ISegment> visitCons(ConsList<ISegment> cons) {
-//    return new ConsList<ISegment>(cons.first.moveInDirectionToLocation(moveInDirectionLocation), 
-//        new MoveFoward(cons.first.currentLocation()).apply(cons.rest));
-//  }
-//}
-//
-//
-//interface ISegment {
-//  Posn currentLocation();
-//  ISegment moveInDirectionToLocation(Posn location);
-//  WorldImage draw();
-//  WorldScene drawOnBoard(WorldScene scene);
-//}
-//
-//class Gap implements ISegment{
-//
-//  Posn location;
-//  Gap(Posn location) {
-//    this.location = location;
-//  }
-//
-//  public ISegment moveInDirectionToLocation(Posn location) {
-//    return new Gap(location);
-//  }
-//
-//  public Posn currentLocation() {
-//    return this.location;
-//  }
-//
-//  @Override
-//  public WorldImage draw() {
-//    // TODO Auto-generated method stub
-//    return new EmptyImage();
-//  }
-//
-//  @Override
-//  public WorldScene drawOnBoard(WorldScene scene) {
+//  public WorldScene visitMt(MtList<IMoveableObject> mt) {
 //    // TODO Auto-generated method stub
 //    return scene;
 //  }
 //
-//}
-//
-//class CentSeg implements ISegment{
-//  Posn location;
-//  int size;
-//
-//  CentSeg(Posn location, int size) {
-//    this.location = location;
-//    this.size = size;
-//  }
-//  public Posn currentLocation() {
-//    return this.location;
-//  }
-//
-//  public WorldImage draw() {
-//    return new CircleImage(this.size, OutlineMode.SOLID, Color.RED);
-//  }
-//
-//  public ISegment moveInDirectionToLocation(Posn location) {
-//    return new CentSeg(location, this.size);
-//  }
 //  @Override
-//  public WorldScene drawOnBoard(WorldScene scene) {
-//    // TODO Auto-generated method stub
-//    return scene.placeImageXY(this.draw(), this.location.x, this.location.y);
+//  public WorldScene visitCons(ConsList<IMoveableObject> cons) {
+//    return new DrawTail(cons.first.drawOnBoard(scene)).apply(cons.rest);
 //  }
-//
-//}
-//
-//class ExamplesMovable {
-//  Board b = new Board(6, 6);
-//  IMoveableObject p = new Gnome(new Posn(0, 240), 10, 10);
 //
 //}
 //

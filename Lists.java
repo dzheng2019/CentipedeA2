@@ -257,14 +257,117 @@ class ChangeAtXY<T> implements IListVisitor<IList<T>, IList<IList<T>>> {
   } 
 }
 
-class MakeThree implements IFunc<Integer, Integer> {
+interface IFunc2<A1, A2, R> {
+  R apply(A1 a1, A2 a2);
+}
+
+class Append<T> implements IFunc2<IList<T>, IList<T>, IList<T>> { 
+  public IList<T> apply(IList<T> a1, IList<T> a2) {
+    return new AppendHelper<T>(a2).apply(a1);
+  }
+}
+
+class AppendHelper<T> implements IListVisitor<T, IList<T>> {
+
+  IList<T> secondList;
+  
+  AppendHelper(IList<T> secondList) {
+    this.secondList = secondList;
+  }
+  
+  @Override
+  public IList<T> apply(IList<T> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
 
   @Override
+  public IList<T> visitMt(MtList<T> mt) {
+    // TODO Auto-generated method stub
+    return this.secondList;
+  }
+
+  @Override
+  public IList<T> visitCons(ConsList<T> cons) {
+    // TODO Auto-generated method stub
+    return new ConsList<T>(cons.first, cons.rest.accept(this));
+  }
+  
+}
+
+class FirstNElements<T> implements IListVisitor<T, IList<T>> {
+  
+  int n;
+  
+  FirstNElements(int n) {
+    this.n = n;
+  }
+  
+  @Override
+  public IList<T> apply(IList<T> arg) {
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<T> visitMt(MtList<T> mt) {
+    return mt;
+  }
+
+  @Override
+  public IList<T> visitCons(ConsList<T> cons) {
+    if (n <= 0) {
+      return new MtList<T>();
+    }
+    else {
+      return new ConsList<T>(cons.first, 
+          new FirstNElements<T>(n - 1).apply(cons.rest));
+    }
+    
+  }
+  
+}
+
+class MakeHeadAtIndex implements IListVisitor<CentipedeSeg, IList<CentipedeSeg>> {
+
+  int index;
+  
+  MakeHeadAtIndex(int index) {
+    this.index = index;
+  }
+  
+  @Override
+  public IList<CentipedeSeg> apply(IList<CentipedeSeg> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitMt(MtList<CentipedeSeg> mt) {
+    // TODO Auto-generated method stub
+    return mt;
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitCons(ConsList<CentipedeSeg> cons) {
+    // TODO Auto-generated method stub
+    if (index == 0) {
+      return new CreateHead().apply(cons);
+    }
+    else {
+      return new MakeHeadAtIndex(index - 1).apply(cons.rest);
+    }
+  }
+}
+
+
+// created for test purposes
+// always returns 3
+class MakeThree implements IFunc<Integer, Integer> {
+
   public Integer apply(Integer arg) {
     // TODO Auto-generated method stub
     return 3;
   }
-
 }
 
 class ExamplesList {
@@ -273,11 +376,19 @@ class ExamplesList {
           new ConsList<Integer>(5, 
               new ConsList<Integer>(5, 
                   new ConsList<Integer>(5, new MtList<Integer>()))));
-  IList<IList<Integer>> TwoDInt = 
-      new ConsList<IList<Integer>>(OneDInt,
-          new ConsList<IList<Integer>>(OneDInt, new MtList<IList<Integer>>()));
-
-  IList<IList<Integer>> TwoDIntM = new ChangeAtXY<Integer>(new MakeThree(), 3, 1).apply(TwoDInt);
+  IList<Integer> OneDInt2 =
+      new ConsList<Integer>(5, 
+          new ConsList<Integer>(5, 
+              new ConsList<Integer>(5, 
+                  new ConsList<Integer>(4, new MtList<Integer>()))));
+//  IList<IList<Integer>> TwoDInt = 
+//      new ConsList<IList<Integer>>(OneDInt,
+//          new ConsList<IList<Integer>>(OneDInt, new MtList<IList<Integer>>()));
+//
+//  IList<IList<Integer>> TwoDIntM = new ChangeAtXY<Integer>(new MakeThree(), 3, 1).apply(TwoDInt);
+  
+  IList<Integer> a = new Append<Integer>().apply(OneDInt, OneDInt2);
+  
   
   
 }

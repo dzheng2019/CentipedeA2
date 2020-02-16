@@ -116,10 +116,150 @@ class Dart extends AMoveableObject{
     return new OrMap<CentipedeSeg>(new DartCentipedeCollide(this.location)).apply(centipedes);
   }
 
+  IList<CentipedeSeg> transformCentipedes(IList<CentipedeSeg> centipedes) {
+    return new ChangeCentipedeHeadsAtLocation(this.location).apply(centipedes);
+  }
+  
+}
+
+class ChangeCentipedeHeadsAtLocation implements IListVisitor<CentipedeSeg, IList<CentipedeSeg>> {
+
+  ICentipedeVisitor<IList<CentipedeSeg>> splitHeadAtLocation;
+  Posn location;
+  ChangeCentipedeHeadsAtLocation(Posn location) {
+    this.splitHeadAtLocation = new SplitHeadAtLocation(location);
+    this.location = location;
+  }
+  
+  @Override
+  public IList<CentipedeSeg> apply(IList<CentipedeSeg> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitMt(MtList<CentipedeSeg> mt) {
+    // TODO Auto-generated method stub
+    return mt;
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitCons(ConsList<CentipedeSeg> cons) {
+    
+    if (new DartCentipedeCollide(this.location).apply(cons.first)) {
+    return new Append<CentipedeSeg>().apply(
+        this.splitHeadAtLocation.apply(cons.first), 
+        cons.rest);
+    }
+    else {
+      return new Append<CentipedeSeg>().apply(
+          new ConsList<CentipedeSeg>(cons.first, new MtList<CentipedeSeg>()), 
+          cons.rest.accept(this));
+    }
+  }  
+}
+
+class SplitHeadAtLocation implements ICentipedeVisitor<IList<CentipedeSeg>> {
+  
+  Posn locationToChange;
+  Util u = new Util();
+  
+  SplitHeadAtLocation(Posn location) {
+    this.locationToChange = location;
+  }
+  
+  @Override
+  public IList<CentipedeSeg> apply(CentipedeSeg arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitHead(CentipedeHead head) {
+    /* Template:
+     * head.location
+     * head.size
+     * head.tails
+     */
+    if (u.posnInRadius(this.locationToChange, head.location, head.size)) {
+      return new CreateHead().apply(head.tail);
+    }
+    else if (new DartCentipedeCollide(this.locationToChange).apply(head)) {
+      int index = new FindCollisionIndex(this.locationToChange).apply(head.tail);
+      IList<CentipedeSeg> newHead = 
+          new ConsList<CentipedeSeg>(
+              head.transformToHead(new FirstNElements<CentipedeSeg>(index).apply(head.tail)),
+              new MtList<CentipedeSeg>());
+      IList<CentipedeSeg> newHeadTail = new MakeHeadAtIndex(index + 1).apply(head.tail);
+      return new Append<CentipedeSeg>().apply(newHead, newHeadTail);
+    }
+    return new ConsList<CentipedeSeg>(head, new MtList<CentipedeSeg>());
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitSeg(CentipedeSeg seg) {
+    // TODO Auto-generated method stub
+    return new ConsList<CentipedeSeg>(seg, new MtList<CentipedeSeg>());
+  }
+}
+
+
+// assumed to be ran
+class CreateHead implements IListVisitor<CentipedeSeg, IList<CentipedeSeg>> {
+
+  @Override
+  public IList<CentipedeSeg> apply(IList<CentipedeSeg> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitMt(MtList<CentipedeSeg> mt) {
+    // TODO Auto-generated method stub
+    return mt;
+  }
+
+  @Override
+  public IList<CentipedeSeg> visitCons(ConsList<CentipedeSeg> cons) {
+    // TODO Auto-generated method stub
+    return new ConsList<CentipedeSeg>(cons.first.transformToHead(cons.rest), new MtList<CentipedeSeg>());
+  }
+}
+
+class FindCollisionIndex implements IListVisitor<CentipedeSeg, Integer> {
+  
+  Posn locationToChange;
+  
+  FindCollisionIndex(Posn locationToChange) {
+    this.locationToChange = locationToChange;
+  }
+
+  @Override
+  public Integer apply(IList<CentipedeSeg> arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public Integer visitMt(MtList<CentipedeSeg> mt) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  @Override
+  public Integer visitCons(ConsList<CentipedeSeg> cons) {
+    // TODO Auto-generated method stub
+    if (new DartCentipedeCollide(locationToChange).apply(cons.first)) {
+      return 0;
+    }
+    
+    else {
+      return 1 + cons.rest.accept(this);
+    }
+  }
 }
 
 class DartCentipedeCollide implements ICentipedeVisitor<Boolean>, IPred<CentipedeSeg> {
-
   Posn location;
   Util u = new Util();
   
@@ -142,28 +282,28 @@ class DartCentipedeCollide implements ICentipedeVisitor<Boolean>, IPred<Centiped
   @Override
   public Boolean visitHead(CentipedeHead head) {
     // TODO Auto-generated method stub
-    return u.posnInRadius(head.location, this.location, head.size);
+    return u.posnInRadius(head.location, this.location, head.size)
+        || new OrMap<CentipedeSeg>(this).apply(head.tail);
   }  
 }
-
-
-
-
 
 
 
 class CentipedeSeg extends AMoveableObject {
   int currentLevel;
   Posn leftOrRight;
+  Posn curDir;
   CentipedeSeg (
       Posn location, 
       int speed, 
       int size, 
       int currentLevel,
-      Posn leftOrRight) {
+      Posn leftOrRight,
+      Posn curDir) {
     super(location, speed, size);
     this.currentLevel = currentLevel;
     this.leftOrRight = leftOrRight;
+    this.curDir = curDir;
   }
 
    
@@ -179,7 +319,8 @@ class CentipedeSeg extends AMoveableObject {
         this.speed, 
         this.size, 
         this.currentLevel,
-        this.leftOrRight);
+        this.leftOrRight,
+        direction);
     } 
     else {
       return this.turnAround(board);
@@ -223,6 +364,7 @@ class CentipedeSeg extends AMoveableObject {
         this.speed, 
         this.size,
         this.currentLevel + 1,
+        direction,
         direction);
 
   }
@@ -234,14 +376,23 @@ class CentipedeSeg extends AMoveableObject {
   public <T> T accept(ICentipedeVisitor<T> func) {
     return func.visitSeg(this);
   }
+  
+  CentipedeHead transformToHead(IList<CentipedeSeg> tail) {
+    return new CentipedeHead(
+        this.location, 
+        this.speed, 
+        this.size, 
+        this.currentLevel,
+        this.leftOrRight,
+        tail,
+        this.curDir);
+  }
 }
 
 
 class CentipedeHead extends CentipedeSeg{
 
   IList<CentipedeSeg> tail;
-  Posn curDir;
-
 
   CentipedeHead (
       Posn location, 
@@ -251,10 +402,9 @@ class CentipedeHead extends CentipedeSeg{
       Posn leftOrRight,
       IList<CentipedeSeg> tail, 
       Posn curDir) {
-    super(location, speed, size, currentLevel, leftOrRight);
+    super(location, speed, size, currentLevel, leftOrRight, curDir);
     this.tail = tail;
     this.leftOrRight = leftOrRight;
-    this.curDir = curDir;
   }
 
   CentipedeHead (
@@ -264,24 +414,24 @@ class CentipedeHead extends CentipedeSeg{
       int currentLevel,
       Posn leftOrRight, 
       Posn curDir) {
-    super(location, speed, size, currentLevel, leftOrRight);
-    this.tail = this.createTail(10);
+    super(location, speed, size, currentLevel, leftOrRight, curDir);
+    this.tail = this.createTail(10, 10);
     this.leftOrRight = leftOrRight;
-    this.curDir = curDir;
   }
 
-  IList<CentipedeSeg> createTail(int num) {
+  IList<CentipedeSeg> createTail(int num, int total) {
     if (num == 0) {
       return new MtList<CentipedeSeg>();
     }
     else {
       return new ConsList<CentipedeSeg>(
           new CentipedeSeg(
-              new Posn(this.location.x - num*40, this.location.y), 
+              new Posn(this.location.x - (total - num + 1)*40, this.location.y), 
               this.speed, 
               this.size, 
               0,
-              this.leftOrRight), createTail(num - 1));
+              this.leftOrRight,
+              this.leftOrRight), createTail(num - 1, total));
     }
   }
 

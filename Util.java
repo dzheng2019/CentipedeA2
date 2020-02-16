@@ -3,32 +3,83 @@ import java.util.*;
 import tester.Tester;
 
 class Util {
-
   // converts a absolute grid position to a grid location 
-  Posn convertAbsoluteToGrid(Posn location, int unit, int row) {
+  Posn convertAbsoluteToGrid(Posn location, int unit, int row) {   
+    /* Template:
+     * Parameters:
+     * location - Posn
+     * unit - int
+     * row - int
+     * Methods/Fields of Parameters:
+     * location.x - int
+     * location.y - int
+     */
+    if (unit < 1)
+      throw new IllegalArgumentException("Units have to be positive");
+
     return new Posn(location.x / unit, row - (int)Math.floor((double) location.y / (double) unit) - 1);
   }
 
   // returns a new posn which is the given posn moved in a given direction by 
   // a given amound (speed)
   Posn moveInDirection(Posn location, Posn direction, int speed) {
+    /* Template:
+     * Parameters:
+     * location - Posn
+     * direction - Posn
+     * speed - int
+     * Methods/Fields of Parameters:
+     * location.x - int
+     * location.y - int
+     * direction.x - int
+     * direction.y - int
+     */
     return new Posn(location.x + direction.x*speed, location.y + direction.y*speed);
   }
 
   // checks if two posns are equal based on their coordinates
   boolean posnEqual(Posn p1, Posn p2) {
+    /* Template:
+     * Parameters:
+     * p1 - Posn
+     * p2 - Posn
+     * Methods/Fields of Parameters:
+     * p1.x - int
+     * p1.y - int
+     * p2.x - int
+     * p2.y - int
+     */
     return (p1.x == p2.x) && (p1.y == p2.y);
   }
-  
+
   // checks if the distance between p1 and p2 is less than the given radius
   boolean posnInRadius(Posn p1, Posn p2, int radius) {
+    /* Template:
+     * Parameters:
+     * p1 - Posn
+     * p2 - Posn
+     * radius - int
+     * Methods/Fields of Parameters:
+     * p1.x - int
+     * p1.y - int
+     * p2.x - int
+     * p2.y - int
+     */
     double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-    return dist < radius;
+    return dist <= radius;
   }
 
   // creates a list of random unique integers that is num long and
   // all integers are below max
   IList<Integer> createRandomInts(int num, int max, Random rand) {
+    /* Template:
+     * Parameters:
+     * num - int
+     * max - int 
+     * rand - Random
+     * Methods on Parameters:
+     * rand.nextInt(int max) - int
+     */
     if (num < 1 || max < 1) {
       return new MtList<Integer>();
     }
@@ -39,45 +90,71 @@ class Util {
               createRandomInts(num - 1, max - 1, rand)));
     }
   }
-  
-  // Reverse the magnitude of the given posn in the x direction
-  Posn reverseDirX(Posn p) {
-    return new Posn(-1 * p.x, p.y);
-  }
-  
-}
-
-abstract class c {
-  
-}
-
-class d extends c {
-  int get() {
-    return 0;
-  }
 }
 
 class ExamplesUtil {
   Util u = new Util();
-    
+
+  // test convertAbsoluteToGrid in Util
   void testConvertAbsToGrid(Tester t) {
     t.checkExpect(
         u.convertAbsoluteToGrid(new Posn(0, 0), 40, 5), new Posn(0, 4));
     t.checkExpect(
         u.convertAbsoluteToGrid(new Posn(0, 180), 40, 5), new Posn(0, 0));
-    
+    t.checkExpect(
+        u.convertAbsoluteToGrid(new Posn(180, 0), 40, 5), new Posn(4, 4));
+    t.checkExpect(
+        u.convertAbsoluteToGrid(new Posn(180, 180), 40, 5), new Posn(4, 0));
+    //Issues with using checkException, but this should pass
+    //    t.checkException(
+    //        new IllegalArgumentException("Units have to be positive"), 
+    //        "Util", "convertAbsoluteToGrid", new Posn(0, 180), 0, 5);
+
   }
 
+  // test moveInDirection in Util
   void testMoveInDirection(Tester t) {
-
+    t.checkExpect(u.moveInDirection(new Posn(0, 0), new Posn(1, 0), 15), new Posn(15, 0));
+    t.checkExpect(u.moveInDirection(new Posn(15, 0), new Posn(1, 0), 15), new Posn(30, 0));
+    t.checkExpect(u.moveInDirection(new Posn(0, 0), new Posn(0, 1), 15), new Posn(0, 15));
+    t.checkExpect(u.moveInDirection(new Posn(0, 15), new Posn(0, -1), 15), new Posn(0, 0));    
   }
 
-
+  // test posnEqual in Util
   void testPosnEqual(Tester t) {
-
-  }
-  
-  void testCreateRandInt(Tester t) {
+    t.checkExpect(u.posnEqual(new Posn(0, 0), new Posn(0, 0)), true);
+    t.checkExpect(u.posnEqual(new Posn(5, 0), new Posn(5, 0)), true);
+    t.checkExpect(u.posnEqual(new Posn(5, 0), new Posn(0, 0)), false);
+    t.checkExpect(u.posnEqual(new Posn(0, 5), new Posn(5, 0)), false);
     
   }
+
+  // test posnInRadius in Util
+  void testPosnInRadius(Tester t) {
+    t.checkExpect(u.posnInRadius(new Posn(0, 0), new Posn(0, 1), 2), true);
+    t.checkExpect(u.posnInRadius(new Posn(5, 0), new Posn(2, 0), 4), true);
+    t.checkExpect(u.posnInRadius(new Posn(5, 0), new Posn(2, 0), 2), false);
+    t.checkExpect(u.posnInRadius(new Posn(0, 5), new Posn(5, 0), 1), false);
+  }
+
+  // test createRandomInts in Util
+  void testCreateRandInt(Tester t) { 
+    t.checkExpect(u.createRandomInts(2, 10, new Random(1234)), 
+        new ConsList<Integer>(8,
+            new ConsList<Integer>(5, new MtList<Integer>())));
+    
+    t.checkExpect(u.createRandomInts(1, 10, new Random(1234)), 
+        new ConsList<Integer>(8,
+            new MtList<Integer>()));
+    
+    t.checkExpect(u.createRandomInts(2, 4, new Random(1234)), 
+        new ConsList<Integer>(2,
+            new ConsList<Integer>(3, new MtList<Integer>())));
+    
+    t.checkExpect(u.createRandomInts(0, 10, new Random(1234)), new MtList<Integer>());
+    
+    t.checkExpect(u.createRandomInts(-1, 10, new Random(1234)), new MtList<Integer>());
+  }
+
+
 }

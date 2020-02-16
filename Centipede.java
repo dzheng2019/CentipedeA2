@@ -37,14 +37,16 @@ abstract class ACentipedeWorld extends World {
     this.row = row;
     this.board = new Board(row, col);
     this.player = new Gnome(new Posn(this.units / 2, row * this.units - this.units / 2) , 15, this.units / 2);
-    this.centipedes = new ConsList<CentipedeSeg>(
-        new CentipedeHead (
-            new Posn(20, 20), 
-            10, 
-            this.units / 2, 
-            0,
-            new Posn(1, 0),
-            new Posn(1, 0)), new MtList<CentipedeSeg>());
+    this.centipedes = 
+        new ConsList<CentipedeSeg>(
+            new CentipedeHead (
+                new Posn(20, 20), 
+                10, 
+                this.units / 2, 
+                0,
+                new Posn(1, 0),
+                new Posn(1, 0)), 
+            new MtList<CentipedeSeg>());
   }
 
   @Override
@@ -57,8 +59,6 @@ abstract class ACentipedeWorld extends World {
 }
 
 class StartingWorld extends ACentipedeWorld {
-
-
   StartingWorld(Random rand,
       Board board, Gnome player, 
       int row, int col, 
@@ -203,12 +203,13 @@ class NonShootingWorld extends APlayWorld {
 
   public World onTick() {
     if (this.dart.collisionWithBoard(this.board)) {
-      return new ShootingWorld (this.rand, this.dart.transformBoard(this.board, true), this.player, this.row, this.col,
-      this.centipedes);
+      return new ShootingWorld (this.rand, this.dart.transformBoard(this.board, true), 
+          this.player, this.row, this.col, this.centipedes);
     }
-//    else if (this.dart.collisionWithCentipedes(this.centipedes)) {
-//      return new shooting world with changed board and centipedes given dart location 
-//    }
+    else if (this.dart.collisionWithCentipedes(this.centipedes)) {
+      return new ShootingWorld(this.rand, this.board, this.player, 
+          this.row, this.col, this.dart.transformCentipedes(centipedes));
+    }
     else {
       return this.updatePlayWorld(
           this.player, 
@@ -264,8 +265,23 @@ class DrawAllCentipedes implements IListVisitor<CentipedeSeg, WorldScene> {
 // ROW THEN COLUMN
 class ExamplesGame {
 
-  int row = 19;
-  int col = 5;
+  int row = 6;
+  int col = 19;
+
+  IList<CentipedeSeg> centi =     
+      new ConsList<CentipedeSeg>(
+          new CentipedeHead (
+              new Posn(20, 20), 
+              10, 
+              40 / 2, 
+              0,
+              new Posn(1, 0),
+              new Posn(1, 0)), 
+          new MtList<CentipedeSeg>());
+  
+  Dart dar = new Dart(new Posn(0, 20), 15, 15);
+  
+  IList<CentipedeSeg> centiM = dar.transformCentipedes(centi);
 
   boolean testBigBang(Tester t) {
     World w = new StartingWorld(row, col);

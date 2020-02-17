@@ -3,6 +3,18 @@ import java.util.*;
 import tester.Tester;
 
 class Util {
+  
+  /* Template:
+   * Methods:
+   * this.convertAbsoluteToGrid(Posn location, int unit, int row) - Posn
+   * this.flipX(Posn toFlip) - Posn
+   * this.moveInDirection(Posn location, Posn direciton, int speed) - Posn
+   * this.posnEqual(Posn p1, Posn p2, int radius) - boolean
+   * this.posnInRadius(Posn p1, Posn p2, int radius) - boolean
+   * this.createRandomInts(int num, int max, Random rand) - IList<Integer>
+   * this.getCenter(Posn pos, int unit) - Posn 
+   */
+  
   // converts a absolute grid position to a grid location 
   Posn convertAbsoluteToGrid(Posn location, int unit, int row) {   
     /* Template:
@@ -14,13 +26,23 @@ class Util {
      * location.x - int
      * location.y - int
      */
-    if (unit < 1)
+    if (unit < 1) {
       throw new IllegalArgumentException("Units have to be positive");
-
-    return new Posn(location.x / unit, row - (int)Math.floor((double) location.y / (double) unit) - 1);
+    }
+    
+    return new Posn(location.x / unit, row 
+        - (int)Math.floor((double) location.y / (double) unit) - 1);
   }
   
+  // flips an posn's x
   Posn flipX(Posn toFlip) {
+    /* Template:
+     * Parameters:
+     * toFlip - Posn 
+     * Fields of Parameters:
+     * toFlip.x - int
+     * toFlip.y - int 
+     */
     return new Posn(-1 * toFlip.x, toFlip.y); 
   }
   
@@ -39,7 +61,8 @@ class Util {
      * direction.x - int
      * direction.y - int
      */
-    return new Posn(location.x + direction.x*speed, location.y + direction.y*speed);
+    return new Posn(location.x + direction.x * speed, 
+        location.y + direction.y * speed);
   }
 
   // checks if two posns are equal based on their coordinates
@@ -106,95 +129,8 @@ class Util {
      * pos.x - int
      * pos.y - int
      */
-    int centerX = pos.x/unit * unit + unit/2;
-    int centerY = pos.y/unit * unit + unit/2;
+    int centerX = pos.x / unit * unit + unit / 2;
+    int centerY = pos.y / unit * unit + unit / 2;
     return new Posn(centerX, centerY);
-  }
-  
-}
-
-class ExamplesUtil {
-  Util u = new Util();
-
-  // test convertAbsoluteToGrid in Util
-  void testConvertAbsToGrid(Tester t) {
-    t.checkExpect(
-        u.convertAbsoluteToGrid(new Posn(0, 0), 40, 5), new Posn(0, 4));
-    t.checkExpect(
-        u.convertAbsoluteToGrid(new Posn(0, 180), 40, 5), new Posn(0, 0));
-    t.checkExpect(
-        u.convertAbsoluteToGrid(new Posn(180, 0), 40, 5), new Posn(4, 4));
-    t.checkExpect(
-        u.convertAbsoluteToGrid(new Posn(180, 180), 40, 5), new Posn(4, 0));
-    //Issues with using checkException, but this should pass
-    //    t.checkException(
-    //        new IllegalArgumentException("Units have to be positive"), 
-    //        "Util", "convertAbsoluteToGrid", new Posn(0, 180), 0, 5);
-
-  }
-  
-  // test flipX in Util
-  void testFlipX(Tester t) {
-    t.checkExpect(u.flipX(new Posn(1, 0)), new Posn(-1, 0));
-    t.checkExpect(u.flipX(new Posn(0, 0)), new Posn(0, 0));
-    t.checkExpect(u.flipX(new Posn(-1, 0)), new Posn(1, 0));
-    t.checkExpect(u.flipX(new Posn(1, 1)), new Posn(-1, 1));
-    t.checkExpect(u.flipX(new Posn(0, 1)), new Posn(0, 1));
-    t.checkExpect(u.flipX(new Posn(-1, 1)), new Posn(1, 1));
-  }
-
-  // test moveInDirection in Util
-  void testMoveInDirection(Tester t) {
-    t.checkExpect(u.moveInDirection(new Posn(0, 0), new Posn(1, 0), 15), new Posn(15, 0));
-    t.checkExpect(u.moveInDirection(new Posn(15, 0), new Posn(1, 0), 15), new Posn(30, 0));
-    t.checkExpect(u.moveInDirection(new Posn(0, 0), new Posn(0, 1), 15), new Posn(0, 15));
-    t.checkExpect(u.moveInDirection(new Posn(0, 15), new Posn(0, -1), 15), new Posn(0, 0));    
-  }
-
-  // test posnEqual in Util
-  void testPosnEqual(Tester t) {
-    t.checkExpect(u.posnEqual(new Posn(0, 0), new Posn(0, 0)), true);
-    t.checkExpect(u.posnEqual(new Posn(5, 0), new Posn(5, 0)), true);
-    t.checkExpect(u.posnEqual(new Posn(5, 0), new Posn(0, 0)), false);
-    t.checkExpect(u.posnEqual(new Posn(0, 5), new Posn(5, 0)), false);
-    
-  }
-
-  // test posnInRadius in Util
-  void testPosnInRadius(Tester t) {
-    t.checkExpect(u.posnInRadius(new Posn(0, 0), new Posn(0, 1), 2), true);
-    t.checkExpect(u.posnInRadius(new Posn(5, 0), new Posn(2, 0), 4), true);
-    t.checkExpect(u.posnInRadius(new Posn(5, 0), new Posn(2, 0), 2), false);
-    t.checkExpect(u.posnInRadius(new Posn(0, 5), new Posn(5, 0), 1), false);
-  }
-
-  // test createRandomInts in Util
-  void testCreateRandInt(Tester t) { 
-    t.checkExpect(u.createRandomInts(2, 10, new Random(1234)), 
-        new ConsList<Integer>(8,
-            new ConsList<Integer>(5, new MtList<Integer>())));
-    
-    t.checkExpect(u.createRandomInts(1, 10, new Random(1234)), 
-        new ConsList<Integer>(8,
-            new MtList<Integer>()));
-    
-    t.checkExpect(u.createRandomInts(2, 4, new Random(1234)), 
-        new ConsList<Integer>(2,
-            new ConsList<Integer>(3, new MtList<Integer>())));
-    
-    t.checkExpect(u.createRandomInts(0, 10, new Random(1234)), new MtList<Integer>());
-    
-    t.checkExpect(u.createRandomInts(-1, 10, new Random(1234)), new MtList<Integer>());
-  }
-  
-  // test getCenter in util
-  void testGetCenter(Tester t) {
-    t.checkExpect(u.getCenter(new Posn(50, 50), 40), new Posn(60, 60));
-    t.checkExpect(u.getCenter(new Posn(55, 55), 40), new Posn(60, 60));
-    t.checkExpect(u.getCenter(new Posn(30, 50), 40), new Posn(20, 60));
-    t.checkExpect(u.getCenter(new Posn(30, 30), 40), new Posn(20, 20));
-    t.checkExpect(u.getCenter(new Posn(0, 0), 40), new Posn(20, 20));
-  }
-
-
+  }  
 }

@@ -41,15 +41,14 @@ abstract class ACentipedeWorld extends World {
         new ConsList<CentipedeHead>(
             new CentipedeHead (
                 new Posn(20, 20), 
-                10, 
+                4, 
                 this.units / 2, 
-                1,
                 new Posn(20, 20),
                 new Posn(20, 20), 
                 this.units), 
             new MtList<CentipedeHead>());
   }
-   
+
   public WorldScene makeScene() {
     WorldScene scene = new WorldScene(this.col * this.units, this.row * this.units);
     WorldScene sceneWithoutCenti = this.player.drawOnBoard(this.board.drawOnBoard(scene));
@@ -107,7 +106,7 @@ class StartingWorld extends ACentipedeWorld {
     //ends the world
     if (key.equals("S") || key.equals("s")) {
       return new ShootingWorld(this.rand,
-          this.board, this.player.gnomeWithSpeed(15), 
+          this.board, this.player.gnomeWithSpeed(6), 
           this.row, this.col, 
           this.centipedes);
     }
@@ -179,6 +178,40 @@ abstract class APlayWorld extends ACentipedeWorld {
 
   abstract World updatePlayWorld(Gnome newPlayer, IList<CentipedeHead> newCentipedes, Board newBoard);
 
+  public WorldEnd worldEnds() {
+    OffMap om = new OffMap(units, row);
+    boolean AnyOffMap = new OrMap<CentipedeHead>(om).apply(this.centipedes);
+    if (player.collisionWithCentipedes(this.centipedes) || AnyOffMap) {
+      return new WorldEnd(true, this.lastScene("YOU LOSE"));
+    } 
+    else if (this.centipedes.length() == 0){
+      return new WorldEnd(true, this.lastScene("YOU WIN"));
+    }
+    else {
+      return new WorldEnd(false, this.makeScene());
+    }
+  }
+
+  public WorldScene lastScene(String msg) {
+    WorldImage msgImage = new TextImage(msg, 60, Color.RED);
+    WorldScene scene = new WorldScene(this.col * this.units, this.row * this.units);
+    return scene.placeImageXY(msgImage, this.col * this.units / 2, this.row * this.units / 2);
+  }
+}
+
+class OffMap implements IPred<CentipedeHead> {
+
+  int units;
+  int row;
+  
+  OffMap(int units, int row) {
+    this.units = units;
+    this.row = row;
+  }
+  
+  public Boolean apply(CentipedeHead arg) {
+    return arg.getGrid(units, row).y < 0;
+  }
 }
 
 // has no dart on board
@@ -189,9 +222,9 @@ class ShootingWorld extends APlayWorld {
     super(rand, board, player, row, col, centipedes);
   }
 
-   
+
   public World updatePlayWorld(Gnome newPlayer, IList<CentipedeHead> newCentipedes, Board newBoard) {
- 
+
     return new ShootingWorld(this.rand, board, newPlayer, this.row, this.col, 
         newCentipedes);
   }
@@ -206,7 +239,7 @@ class ShootingWorld extends APlayWorld {
 
   public World onSpaceEvent() {
     return new NonShootingWorld(this.rand, this.board, this.player, this.row, this.col,
-        this.centipedes, this.board.produceDart(this.player, 20));
+        this.centipedes, this.board.produceDart(this.player, 10));
   }
 
 }
@@ -239,16 +272,15 @@ class NonShootingWorld extends APlayWorld {
     }
   }
 
-   
+
   World onSpaceEvent() {
- 
     return this;
   }
 
 
-   
+
   World updatePlayWorld(Gnome newPlayer, IList<CentipedeHead> newCentipedes, Board newBoard) {
- 
+
     return new NonShootingWorld(this.rand, board, newPlayer, this.row, this.col, 
         newCentipedes, this.dart.move(this.board));
   }
@@ -264,19 +296,19 @@ class DrawAllCentipedes implements IListVisitor<CentipedeHead, WorldScene> {
   DrawAllCentipedes(WorldScene scene) {
     this.scene = scene;
   }
-   
+
   public WorldScene apply(IList<CentipedeHead> arg) {
- 
+
     return arg.accept(this);
   }
-   
+
   public WorldScene visitMt(MtList<CentipedeHead> mt) {
- 
+
     return scene;
   }
-   
+
   public WorldScene visitCons(ConsList<CentipedeHead> cons) {
- 
+
     return new DrawAllCentipedes(cons.first.drawOnBoard(scene)).apply(cons.rest);
   }
 }
@@ -289,21 +321,18 @@ class MoveHeads implements IListVisitor<CentipedeHead, IList<CentipedeHead>> {
     this.board = board;
   }
 
-   
+
   public IList<CentipedeHead> apply(IList<CentipedeHead> arg) {
- 
     return arg.accept(this);
   }
 
-   
+
   public IList<CentipedeHead> visitMt(MtList<CentipedeHead> mt) {
- 
     return mt;
   }
 
-   
+
   public IList<CentipedeHead> visitCons(ConsList<CentipedeHead> cons) {
- 
     return new ConsList<CentipedeHead>(cons.first.move(board), cons.rest.accept(this));
   } 
 
@@ -315,15 +344,13 @@ class ExamplesGame {
   int row = 10;
   int col = 20;
 
-
   boolean testBigBang(Tester t) {
     World w = new StartingWorld(row, col);
     int worldWidth = 40 * col;
     int worldHeight = 40 * row;
-    double tickRate = .05;
+    double tickRate = 1.0 / 28.0;
     return w.bigBang(worldWidth, worldHeight, tickRate);
   }
-
 }
 
 

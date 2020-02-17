@@ -92,7 +92,7 @@ class Board {
     Posn location = player.getGrid(this.units, this.row);
     return new Dart(new Posn(location.x * this.units + this.units / 2 , this.row*this.units - this.units / 2), speed, this.units / 2);
   }
-  
+
   Board randomBoard(boolean isPebbles, int num, Random rand) {
     IList<Integer> randomLocs =  
         new IncrementAllByX(col).apply(u.createRandomInts(
@@ -105,7 +105,7 @@ class Board {
     return new Board(new ChangeAtXY<ITile>(
         new ChangeToGrass(), 0, row - 1).apply(newGameBoard));
   }
-  
+
   Board changeAtLocation(Posn location, boolean createPebble) {
     Posn gridLoc = u.convertAbsoluteToGrid(location, this.units, this.row);
     if (createPebble) {
@@ -114,6 +114,43 @@ class Board {
     else {
       return new Board(new ChangeAtXY<ITile>(new ChangeToDandelion(), gridLoc.x, gridLoc.y).apply(this.gameBoard));
     }
+  }
+
+  Board clickAtLocation(Posn gridLoc, boolean isLeft) {
+    return new Board(new ChangeAtXY<ITile>(new ClickFunc(isLeft), gridLoc.x, gridLoc.y).apply(this.gameBoard));      
+  }
+}
+
+class ClickFunc implements IFuncTile<ITile> {
+
+  boolean isLeft;
+  
+  ClickFunc(boolean isLeft) {
+    this.isLeft = isLeft;
+  }
+  
+  @Override
+  public ITile apply(ITile arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public ITile visitGrass(Grass grass) {
+    // TODO Auto-generated method stub
+    return grass.click(isLeft);
+  }
+
+  @Override
+  public ITile visitDandelions(Dandelions dande) {
+    // TODO Auto-generated method stub
+    return dande.click(isLeft);
+  }
+
+  @Override
+  public ITile visitPebbles(Pebbles pebb) {
+    // TODO Auto-generated method stub
+    return pebb.click(isLeft);
   }
   
 }

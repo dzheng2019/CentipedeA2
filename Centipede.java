@@ -49,7 +49,7 @@ abstract class ACentipedeWorld extends World {
                 this.units), 
             new MtList<CentipedeHead>());
   }
-  @Override
+   
   public WorldScene makeScene() {
     WorldScene scene = new WorldScene(this.col * this.units, this.row * this.units);
     WorldScene sceneWithoutCenti = this.player.drawOnBoard(this.board.drawOnBoard(scene));
@@ -127,6 +127,27 @@ class StartingWorld extends ACentipedeWorld {
     }
     return this;
   }
+
+  //returns a new world based on the mouse event
+  public World onMouseClicked(Posn pos, String buttonName) {
+    Posn gridLoc = this.clickToGrid(pos);
+    // does not modify the world if clicked on the bottom row
+    if (gridLoc.y == 0) {
+      return this;
+    }
+    // returns a new world where the clicked on tile gets clicked
+    if (buttonName.equals("RightButton")) {
+      return updateStartWorld(
+          board.clickAtLocation(gridLoc, false),
+          this.player);
+    } 
+    // returns a new world where the clicked on tile gets clicked
+    if (buttonName.equals("LeftButton")) {
+      return updateStartWorld(
+          board.clickAtLocation(gridLoc, true),
+          this.player);    }
+    return this;
+  }
 }
 
 abstract class APlayWorld extends ACentipedeWorld {
@@ -168,9 +189,9 @@ class ShootingWorld extends APlayWorld {
     super(rand, board, player, row, col, centipedes);
   }
 
-  @Override
+   
   public World updatePlayWorld(Gnome newPlayer, IList<CentipedeHead> newCentipedes, Board newBoard) {
-    // TODO Auto-generated method stub
+ 
     return new ShootingWorld(this.rand, board, newPlayer, this.row, this.col, 
         newCentipedes);
   }
@@ -218,16 +239,16 @@ class NonShootingWorld extends APlayWorld {
     }
   }
 
-  @Override
+   
   World onSpaceEvent() {
-    // TODO Auto-generated method stub
+ 
     return this;
   }
 
 
-  @Override
+   
   World updatePlayWorld(Gnome newPlayer, IList<CentipedeHead> newCentipedes, Board newBoard) {
-    // TODO Auto-generated method stub
+ 
     return new NonShootingWorld(this.rand, board, newPlayer, this.row, this.col, 
         newCentipedes, this.dart.move(this.board));
   }
@@ -243,19 +264,19 @@ class DrawAllCentipedes implements IListVisitor<CentipedeHead, WorldScene> {
   DrawAllCentipedes(WorldScene scene) {
     this.scene = scene;
   }
-  @Override
+   
   public WorldScene apply(IList<CentipedeHead> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
-  @Override
+   
   public WorldScene visitMt(MtList<CentipedeHead> mt) {
-    // TODO Auto-generated method stub
+ 
     return scene;
   }
-  @Override
+   
   public WorldScene visitCons(ConsList<CentipedeHead> cons) {
-    // TODO Auto-generated method stub
+ 
     return new DrawAllCentipedes(cons.first.drawOnBoard(scene)).apply(cons.rest);
   }
 }
@@ -263,29 +284,29 @@ class DrawAllCentipedes implements IListVisitor<CentipedeHead, WorldScene> {
 class MoveHeads implements IListVisitor<CentipedeHead, IList<CentipedeHead>> {
 
   Board board;
-  
+
   MoveHeads(Board board) {
     this.board = board;
   }
-  
-  @Override
+
+   
   public IList<CentipedeHead> apply(IList<CentipedeHead> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public IList<CentipedeHead> visitMt(MtList<CentipedeHead> mt) {
-    // TODO Auto-generated method stub
+ 
     return mt;
   }
 
-  @Override
+   
   public IList<CentipedeHead> visitCons(ConsList<CentipedeHead> cons) {
-    // TODO Auto-generated method stub
+ 
     return new ConsList<CentipedeHead>(cons.first.move(board), cons.rest.accept(this));
   } 
-  
+
 }
 
 // ROW THEN COLUMN
@@ -299,7 +320,7 @@ class ExamplesGame {
     World w = new StartingWorld(row, col);
     int worldWidth = 40 * col;
     int worldHeight = 40 * row;
-    double tickRate = .3;
+    double tickRate = .05;
     return w.bigBang(worldWidth, worldHeight, tickRate);
   }
 

@@ -96,7 +96,16 @@ class Util {
     }
   }
   
+  // given a location, finds the center of the grid cell the location is in 
   Posn getCenter(Posn pos, int unit) {
+    /* Template:
+     * Parameters:
+     * pos - Posn
+     * unit - int
+     * Methods/Fields of Parameters:
+     * pos.x - int
+     * pos.y - int
+     */
     int centerX = pos.x/unit * unit + unit/2;
     int centerY = pos.y/unit * unit + unit/2;
     return new Posn(centerX, centerY);
@@ -122,6 +131,16 @@ class ExamplesUtil {
     //        new IllegalArgumentException("Units have to be positive"), 
     //        "Util", "convertAbsoluteToGrid", new Posn(0, 180), 0, 5);
 
+  }
+  
+  // test flipX in Util
+  void testFlipX(Tester t) {
+    t.checkExpect(u.flipX(new Posn(1, 0)), new Posn(-1, 0));
+    t.checkExpect(u.flipX(new Posn(0, 0)), new Posn(0, 0));
+    t.checkExpect(u.flipX(new Posn(-1, 0)), new Posn(1, 0));
+    t.checkExpect(u.flipX(new Posn(1, 1)), new Posn(-1, 1));
+    t.checkExpect(u.flipX(new Posn(0, 1)), new Posn(0, 1));
+    t.checkExpect(u.flipX(new Posn(-1, 1)), new Posn(1, 1));
   }
 
   // test moveInDirection in Util
@@ -166,6 +185,15 @@ class ExamplesUtil {
     t.checkExpect(u.createRandomInts(0, 10, new Random(1234)), new MtList<Integer>());
     
     t.checkExpect(u.createRandomInts(-1, 10, new Random(1234)), new MtList<Integer>());
+  }
+  
+  // test getCenter in util
+  void testGetCenter(Tester t) {
+    t.checkExpect(u.getCenter(new Posn(50, 50), 40), new Posn(60, 60));
+    t.checkExpect(u.getCenter(new Posn(55, 55), 40), new Posn(60, 60));
+    t.checkExpect(u.getCenter(new Posn(30, 50), 40), new Posn(20, 60));
+    t.checkExpect(u.getCenter(new Posn(30, 30), 40), new Posn(20, 20));
+    t.checkExpect(u.getCenter(new Posn(0, 0), 40), new Posn(20, 20));
   }
 
 

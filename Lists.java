@@ -1,20 +1,45 @@
+import tester.*;
 // represents a list of type t
 interface IList<T> {
+  
+  /* Template:
+   * Methods:
+   * this.accept(IListVisitor<T, U> visitor) - U
+   * this.length() - int
+   */
+  
   // accept the given list visitor into this
   <U> U accept(IListVisitor<T, U> visitor);
-  // return the length of this
+  // return the length of this list
   int length();
 }
 
 // represents an empty list of type t
 class MtList<T> implements IList<T> {
+  
+  /* Template:
+   * Same as interface
+   */
+  
   // accepts a visitor of type t
   public <U> U accept(IListVisitor<T, U> visitor) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * visitor - IListVisitor<T, U>
+     * Methods on Parameter:
+     * visitor.visitnMt(MtList<T> mt);
+     * visitor.visitCons(ConsList<T> cons)
+     * visitor.apply(IList<T> arg)
+     */
     return visitor.visitMt(this);
   }
 
   // return the length of this (0 because empty)
   public int length() {
+    /* Template:
+     * Same as class template
+     */
     return 0;
   }
 
@@ -25,6 +50,16 @@ class ConsList<T> implements IList<T> {
   T first;
   IList<T> rest;
 
+  /* Template:
+   * Same as interface
+   * Fields:
+   * this.first - T
+   * this.rest - IList<T>
+   * Methods on Fields:
+   * rest.accept(IListVisito<T, U> visitor) - u
+   * rest.length() - int
+   */
+  
   ConsList(T first, IList<T> rest) {
     this.first = first;
     this.rest = rest;
@@ -32,11 +67,23 @@ class ConsList<T> implements IList<T> {
 
   // accepts a visitor of type t
   public <U> U accept(IListVisitor<T, U> visitor) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * visitor - IListVisitor<T, U>
+     * Methods on Parameter:
+     * visitor.visitnMt(MtList<T> mt);
+     * visitor.visitCons(ConsList<T> cons)
+     * visitor.apply(IList<T> arg)
+     */
     return visitor.visitCons(this);
   }
 
   //return the length of this (0 because empty)
   public int length() {
+    /* Template:
+     * Same as class template
+     */
     return 1 + this.rest.length();
   }
 
@@ -69,21 +116,21 @@ class OrMap<T> implements IListVisitor<T, Boolean> {
     this.pred = pred;
   }
 
-  @Override
+   
   public Boolean apply(IList<T> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public Boolean visitMt(MtList<T> mt) {
-    // TODO Auto-generated method stub
+ 
     return false;
   }
 
-  @Override
+   
   public Boolean visitCons(ConsList<T> cons) {
-    // TODO Auto-generated method stub
+ 
     return pred.apply(cons.first) || this.apply(cons.rest);
   }
 
@@ -97,7 +144,7 @@ class OrMapListPred<T> implements IPred<IList<T>> {
     this.pred = pred;
   }
 
-  @Override
+   
   public Boolean apply(IList<T> arg) {
     return new OrMap<T>(this.pred).apply(arg);
   }
@@ -105,21 +152,21 @@ class OrMapListPred<T> implements IPred<IList<T>> {
 }
 
 class RowLength<T> implements IListVisitor<IList<T>, Integer> {
-  @Override
+   
   public Integer apply(IList<IList<T>> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public Integer visitMt(MtList<IList<T>> mt) {
-    // TODO Auto-generated method stub
+ 
     return 0;
   }
 
-  @Override
+   
   public Integer visitCons(ConsList<IList<T>> cons) {
-    // TODO Auto-generated method stub
+ 
     return cons.first.length();
   }
 }
@@ -132,21 +179,21 @@ class Map<T, R> implements IListVisitor<T, IList<R>> {
     this.func = func;
   }
 
-  @Override
+   
   public IList<R> apply(IList<T> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public IList<R> visitMt(MtList<T> mt) {
-    // TODO Auto-generated method stub
+ 
     return new MtList<R>();
   }
 
-  @Override
+   
   public IList<R> visitCons(ConsList<T> cons) {
-    // TODO Auto-generated method stub
+ 
     return new ConsList<R>(func.apply(cons.first), cons.rest.accept(this));
   }
 
@@ -160,7 +207,7 @@ class MapList<T, R> implements IFunc<IList<T>, IList<R>> {
     this.func = func;
   }
 
-  @Override
+   
   public IList<R> apply(IList<T> arg) {
     return new Map<T, R>(func).apply(arg);
   } 
@@ -174,9 +221,9 @@ class ContainsInt implements IPred<Integer> {
     this.check = check;
   }
 
-  @Override
+   
   public Boolean apply(Integer arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.intValue() == check;
   }
 
@@ -191,19 +238,19 @@ class ChangeAtX<T> implements IListVisitor<T, IList<T>> {
     this.n = n;
   }
 
-  @Override
+   
   public IList<T> apply(IList<T> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public IList<T> visitMt(MtList<T> mt) {
-    // TODO Auto-generated method stub
+ 
     return new MtList<T>();
   }
 
-  @Override
+   
   public IList<T> visitCons(ConsList<T> cons) {
     if (n < 0) {
       return cons;
@@ -229,19 +276,19 @@ class ChangeAtXY<T> implements IListVisitor<IList<T>, IList<IList<T>>> {
     this.r = r;
   }
 
-  @Override
+   
   public IList<IList<T>> apply(IList<IList<T>> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public IList<IList<T>> visitMt(MtList<IList<T>> mt) {
-    // TODO Auto-generated method stub
+ 
     return mt;
   }
 
-  @Override
+   
   public IList<IList<T>> visitCons(ConsList<IList<T>> cons) {
     if (r < 0) {
       return cons;
@@ -275,21 +322,21 @@ class AppendHelper<T> implements IListVisitor<T, IList<T>> {
     this.secondList = secondList;
   }
   
-  @Override
+   
   public IList<T> apply(IList<T> arg) {
-    // TODO Auto-generated method stub
+ 
     return arg.accept(this);
   }
 
-  @Override
+   
   public IList<T> visitMt(MtList<T> mt) {
-    // TODO Auto-generated method stub
+ 
     return this.secondList;
   }
 
-  @Override
+   
   public IList<T> visitCons(ConsList<T> cons) {
-    // TODO Auto-generated method stub
+ 
     return new ConsList<T>(cons.first, cons.rest.accept(this));
   }
   
@@ -303,17 +350,17 @@ class FirstNElements<T> implements IListVisitor<T, IList<T>> {
     this.n = n;
   }
   
-  @Override
+   
   public IList<T> apply(IList<T> arg) {
     return arg.accept(this);
   }
 
-  @Override
+   
   public IList<T> visitMt(MtList<T> mt) {
     return mt;
   }
 
-  @Override
+   
   public IList<T> visitCons(ConsList<T> cons) {
     if (n <= 0) {
       return new MtList<T>();
@@ -327,38 +374,29 @@ class FirstNElements<T> implements IListVisitor<T, IList<T>> {
   
 }
 
-
-
-
 // created for test purposes
 // always returns 3
 class MakeThree implements IFunc<Integer, Integer> {
-
+  // returns 3
   public Integer apply(Integer arg) {
-    // TODO Auto-generated method stub
     return 3;
   }
 }
 
 class ExamplesList {
-  IList<Integer> OneDInt =
-      new ConsList<Integer>(5, 
-          new ConsList<Integer>(5, 
-              new ConsList<Integer>(5, 
-                  new ConsList<Integer>(5, new MtList<Integer>()))));
-  IList<Integer> OneDInt2 =
-      new ConsList<Integer>(5, 
-          new ConsList<Integer>(5, 
-              new ConsList<Integer>(5, 
-                  new ConsList<Integer>(4, new MtList<Integer>()))));
-//  IList<IList<Integer>> TwoDInt = 
-//      new ConsList<IList<Integer>>(OneDInt,
-//          new ConsList<IList<Integer>>(OneDInt, new MtList<IList<Integer>>()));
-//
-//  IList<IList<Integer>> TwoDIntM = new ChangeAtXY<Integer>(new MakeThree(), 3, 1).apply(TwoDInt);
+
+  IList<Integer> MT = new MtList<Integer>();
+  IList<Integer> L55 = 
+      new ConsList<Integer>(5,
+          new ConsList<Integer>(5, MT));
+  IList<Integer> L53 = 
+      new ConsList<Integer>(5,
+          new ConsList<Integer>(3, MT));
   
-  IList<Integer> a = new Append<Integer>().apply(OneDInt, OneDInt2);
-  
+  // test accept in IList
+  void testAccept(Tester t) {
+    
+  }
   
   
 }

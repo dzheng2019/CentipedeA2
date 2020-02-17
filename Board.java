@@ -71,9 +71,7 @@ class Board {
             new OrMapListPred<ITile>(
                 new TileCollision(collideGridLocRight))).apply(this.gameBoard);
 
-    // subtract 3 to make it closer to edge
-    // unsure why right edge needs special treatement compared to left edge
-    boolean xCollision = collidePos.x + size - 3>= this.col * this.units;
+    boolean xCollision = collidePos.x + size>= this.col * this.units;
 
     return tileCollisionRight || xCollision;
   }

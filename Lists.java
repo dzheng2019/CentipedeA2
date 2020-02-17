@@ -327,37 +327,7 @@ class FirstNElements<T> implements IListVisitor<T, IList<T>> {
   
 }
 
-class MakeHeadAtIndex implements IListVisitor<CentipedeSeg, IList<CentipedeSeg>> {
 
-  int index;
-  
-  MakeHeadAtIndex(int index) {
-    this.index = index;
-  }
-  
-  @Override
-  public IList<CentipedeSeg> apply(IList<CentipedeSeg> arg) {
-    // TODO Auto-generated method stub
-    return arg.accept(this);
-  }
-
-  @Override
-  public IList<CentipedeSeg> visitMt(MtList<CentipedeSeg> mt) {
-    // TODO Auto-generated method stub
-    return mt;
-  }
-
-  @Override
-  public IList<CentipedeSeg> visitCons(ConsList<CentipedeSeg> cons) {
-    // TODO Auto-generated method stub
-    if (index == 0) {
-      return new CreateHead().apply(cons);
-    }
-    else {
-      return new MakeHeadAtIndex(index - 1).apply(cons.rest);
-    }
-  }
-}
 
 
 // created for test purposes

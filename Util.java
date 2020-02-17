@@ -19,6 +19,11 @@ class Util {
 
     return new Posn(location.x / unit, row - (int)Math.floor((double) location.y / (double) unit) - 1);
   }
+  
+  Posn flipX(Posn toFlip) {
+    return new Posn(-1 * toFlip.x, toFlip.y); 
+  }
+  
 
   // returns a new posn which is the given posn moved in a given direction by 
   // a given amound (speed)
@@ -66,7 +71,7 @@ class Util {
      * p2.y - int
      */
     double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-    return dist <= radius;
+    return dist < radius;
   }
 
   // creates a list of random unique integers that is num long and
@@ -90,6 +95,13 @@ class Util {
               createRandomInts(num - 1, max - 1, rand)));
     }
   }
+  
+  Posn getCenter(Posn pos, int unit) {
+    int centerX = pos.x/unit * unit + unit/2;
+    int centerY = pos.y/unit * unit + unit/2;
+    return new Posn(centerX, centerY);
+  }
+  
 }
 
 class ExamplesUtil {

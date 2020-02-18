@@ -1,12 +1,17 @@
 import java.awt.Color;
 import java.util.Random;
 
+import javalib.funworld.World;
 import javalib.funworld.WorldScene;
+import javalib.worldimages.AboveImage;
+import javalib.worldimages.BesideImage;
 import javalib.worldimages.CircleImage;
+import javalib.worldimages.EmptyImage;
 import javalib.worldimages.OutlineMode;
 import javalib.worldimages.OverlayImage;
 import javalib.worldimages.Posn;
 import javalib.worldimages.RectangleImage;
+import javalib.worldimages.WorldImage;
 import tester.*;
 
 class ExamplesAll {
@@ -809,6 +814,296 @@ class ExamplesAll {
   void testTransformCentipedes(Tester t) {
     t.checkExpect(d1.transformCentipedes(centipedes), new MtList<CentipedeHead>());
     t.checkExpect(d2.transformCentipedes(centipedes), new MtList<CentipedeHead>());  
-  }  
+  } 
+
+  IList<ITile> mtTileList = new MtList<ITile>();
+
+  IList<ITile> tileGrid1row0 = 
+      new ConsList<ITile>(new Grass(new Posn(0, 0)),
+          new ConsList<ITile>(new Grass(new Posn(1, 0)), 
+              mtTileList));
+
+  IList<ITile> tileGrid1row1 = 
+      new ConsList<ITile>(new Grass(new Posn(0, 1)),
+          new ConsList<ITile>(new Grass(new Posn(1, 1)), 
+              mtTileList));
+
+  IList<ITile> tileGrid2row0 = 
+      new ConsList<ITile>(new Grass(new Posn(0, 0)),
+          new ConsList<ITile>(new Grass(new Posn(1, 0)), 
+              mtTileList));
+
+  IList<ITile> tileGrid2row1 = 
+      new ConsList<ITile>(new Grass(new Posn(0, 1)),
+          new ConsList<ITile>(new Dandelions(new Posn(1, 1)), 
+              mtTileList));
+
+  WorldImage drawRow0 = new DrawRow().apply(tileGrid1row0);
+  WorldImage drawRow1 = new DrawRow().apply(tileGrid1row1);
+
+  IList<IList<ITile>> mtListTileList = new MtList<IList<ITile>>();
+
+  IList<IList<ITile>> tileGrid1 = 
+      new ConsList<IList<ITile>>(tileGrid1row0,
+          new ConsList<IList<ITile>>(tileGrid1row1, mtListTileList));
+
+  IList<IList<ITile>> tileGrid2 = 
+      new ConsList<IList<ITile>>(tileGrid2row0,
+          new ConsList<IList<ITile>>(tileGrid2row1, mtListTileList));
+
+  Board board2x2 = new Board(2, 2);
+  Board board0x0 = new Board(0, 0);
+  Board board2x2D = new Board(tileGrid2);
+
+  // test makeBoard in Board
+  void testMakeBoard(Tester t) {
+    t.checkExpect(board2x2.makeBoard(1, 1), tileGrid1);
+    t.checkExpect(board2x2.makeBoard(-1, -1), mtListTileList);
+  }
+
+  // test makeRow in Board
+  void testMakeRow(Tester t) {
+    t.checkExpect(board2x2.makeRow(1, 1), tileGrid1row1);
+    t.checkExpect(board2x2.makeRow(-1, -1), mtTileList);
+  }
+
+  // test draw in Board 
+  void testDrawInBoard(Tester t) {
+    t.checkExpect(board2x2.draw(), new DrawBoard().apply(tileGrid1));
+    t.checkExpect(board0x0.draw(), new EmptyImage());
+  }
+
+  // test drawOnBoard in Board 
+  void testDrawOnBoardinBoard(Tester t) {
+    WorldScene scene = new WorldScene(80, 80);
+    t.checkExpect(board2x2.drawOnBoard(scene), 
+        scene.placeImageXY(new DrawBoard().apply(tileGrid1), 40, 40));
+    t.checkExpect(board0x0.drawOnBoard(scene), scene);
+  }
+
+  // test collisionOccursLeft in Board
+  void testCollisionOccursLeft(Tester t) {
+    t.checkExpect(board2x2.collisionOccursLeft(new Posn(40, 20), 30), false);
+    t.checkExpect(board2x2.collisionOccursLeft(new Posn(40, 40), 30), false);
+    t.checkExpect(board2x2.collisionOccursLeft(new Posn(20, 20), 30), true);
+    t.checkExpect(board2x2.collisionOccursLeft(new Posn(20, 40), 30), true);
+    t.checkExpect(board2x2.collisionOccursLeft(new Posn(80, 20), 30), false);
+    t.checkExpect(board2x2.collisionOccursLeft(new Posn(80, 40), 30), false);
+
+    t.checkExpect(board0x0.collisionOccursLeft(new Posn(40, 20), 30), false);
+    t.checkExpect(board0x0.collisionOccursLeft(new Posn(40, 40), 30), false);
+    t.checkExpect(board0x0.collisionOccursLeft(new Posn(20, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccursLeft(new Posn(20, 40), 30), true);
+    t.checkExpect(board0x0.collisionOccursLeft(new Posn(80, 20), 30), false);
+    t.checkExpect(board0x0.collisionOccursLeft(new Posn(80, 40), 30), false);
+
+    t.checkExpect(board2x2D.collisionOccursLeft(new Posn(40, 20), 30), false);
+    t.checkExpect(board2x2D.collisionOccursLeft(new Posn(40, 40), 30), false);
+    t.checkExpect(board2x2D.collisionOccursLeft(new Posn(20, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccursLeft(new Posn(20, 40), 30), true);
+    t.checkExpect(board2x2D.collisionOccursLeft(new Posn(80, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccursLeft(new Posn(80, 40), 30), false);
+  }
+
+  // test collisionOccursRight in Board
+  void testCollisionOccursRight(Tester t) {
+    t.checkExpect(board2x2.collisionOccursRight(new Posn(40, 20), 30), false);
+    t.checkExpect(board2x2.collisionOccursRight(new Posn(40, 40), 30), false);
+    t.checkExpect(board2x2.collisionOccursRight(new Posn(20, 20), 30), false);
+    t.checkExpect(board2x2.collisionOccursRight(new Posn(20, 40), 30), false);
+    t.checkExpect(board2x2.collisionOccursRight(new Posn(80, 20), 30), true);
+    t.checkExpect(board2x2.collisionOccursRight(new Posn(80, 40), 30), true);
+
+    t.checkExpect(board0x0.collisionOccursRight(new Posn(40, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccursRight(new Posn(40, 40), 30), true);
+    t.checkExpect(board0x0.collisionOccursRight(new Posn(20, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccursRight(new Posn(20, 40), 30), true);
+    t.checkExpect(board0x0.collisionOccursRight(new Posn(80, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccursRight(new Posn(80, 40), 30), true);
+
+    t.checkExpect(board2x2D.collisionOccursRight(new Posn(40, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccursRight(new Posn(40, 40), 30), false);
+    t.checkExpect(board2x2D.collisionOccursRight(new Posn(20, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccursRight(new Posn(20, 40), 30), false);
+    t.checkExpect(board2x2D.collisionOccursRight(new Posn(80, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccursRight(new Posn(80, 40), 30), true);
+  }
+
+  // test collisionOccurs in Board
+  void testCollisionOccurs(Tester t) {
+    t.checkExpect(board2x2.collisionOccurs(new Posn(40, 20), 30), true);
+    t.checkExpect(board2x2.collisionOccurs(new Posn(40, 40), 30), false);
+    t.checkExpect(board2x2.collisionOccurs(new Posn(20, 20), 30), true);
+    t.checkExpect(board2x2.collisionOccurs(new Posn(20, 40), 30), true);
+    t.checkExpect(board2x2.collisionOccurs(new Posn(80, 20), 30), true);
+    t.checkExpect(board2x2.collisionOccurs(new Posn(80, 40), 30), true);
+
+    t.checkExpect(board0x0.collisionOccurs(new Posn(40, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccurs(new Posn(40, 40), 30), true);
+    t.checkExpect(board0x0.collisionOccurs(new Posn(20, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccurs(new Posn(20, 40), 30), true);
+    t.checkExpect(board0x0.collisionOccurs(new Posn(80, 20), 30), true);
+    t.checkExpect(board0x0.collisionOccurs(new Posn(80, 40), 30), true);
+
+    t.checkExpect(board2x2D.collisionOccurs(new Posn(40, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccurs(new Posn(40, 40), 30), false);
+    t.checkExpect(board2x2D.collisionOccurs(new Posn(20, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccurs(new Posn(20, 40), 30), true);
+    t.checkExpect(board2x2D.collisionOccurs(new Posn(80, 20), 30), true);
+    t.checkExpect(board2x2D.collisionOccurs(new Posn(80, 40), 30), true);
+  }
+
+  // test produceDart in Board
+  void testProduceDart(Tester t) {  
+    Gnome player = new Gnome(new Posn(20, 60), 10, 20);
+    t.checkExpect(board2x2.produceDart(player, 10), 
+        new Dart(
+            new Posn(20, 60),
+            10,
+            20));
+    t.checkExpect(board2x2.produceDart(player, 10), 
+        new Dart(
+            new Posn(20, 60),
+            10,
+            20));
+    t.checkExpect(board0x0.produceDart(player, 10), 
+        new Dart(
+            new Posn(20, -20),
+            10,
+            20));
+  }
+
+  // test randomBoard in Board
+  void testRandomBoard(Tester t) {
+    t.checkExpect(board2x2.randomBoard(false, 0, new Random(123)), new Board(tileGrid1));
+    t.checkExpect(board2x2.randomBoard(false, 10, new Random(1234)), new Board(tileGrid2));
+    t.checkExpect(board2x2D.randomBoard(false, 10, new Random(1234)), board2x2D);
+    t.checkExpect(board0x0.randomBoard(false, 10, new Random(1234)), board0x0);
+
+  }
+
+  // test changeAtLocation in Board
+  void testChangeAtLocation(Tester t) {
+    t.checkExpect(board2x2.changeAtLocation(new Posn(-20, -20), true), new Board(tileGrid1));
+    t.checkExpect(board2x2.changeAtLocation(new Posn(60, 20), false), new Board(tileGrid2));
+    t.checkExpect(board2x2D.changeAtLocation(new Posn(60, 20), false), board2x2D);
+    t.checkExpect(board0x0.changeAtLocation(new Posn(60, 20), true), board0x0);
+  }
+
+  // test clickAtLocation in Board
+  void testClikcAtLocation(Tester t) {
+    t.checkExpect(board2x2.clickAtLocation(new Posn(-1, -1), false), new Board(tileGrid1));
+    t.checkExpect(board2x2.clickAtLocation(new Posn(1, 1), true), new Board(tileGrid2));
+    t.checkExpect(board2x2D.clickAtLocation(new Posn(1, 1), false), board2x2D);
+    t.checkExpect(board0x0.clickAtLocation(new Posn(0, 1), true), board0x0);
+  }
+
+  ITile grass = new Grass(new Posn(0, 0));
+  ITile dande = new Dandelions(new Posn(0, 0));
+  ITile pebbs = new Pebbles(new Posn(0, 0));
+
+  IList<Integer> mtInt = new MtList<Integer>();
+  IList<Integer> yesChange = new ConsList<Integer>(0, mtInt);
+  IList<Integer> noChange= new ConsList<Integer>(5, mtInt);
+
+  ClickFunc clickLeft = new ClickFunc(true);
+  ClickFunc clickRight = new ClickFunc(false);
+  ChangeToGrass cTg = new ChangeToGrass();
+  ChangeToDandelion cTd = new ChangeToDandelion();
+  ChangeToPebbles cTp = new ChangeToPebbles();
+  ChangeTilesToIf yesChangePebb= new ChangeTilesToIf(yesChange, true, 4);
+  ChangeTilesToIf yesChangeDande= new ChangeTilesToIf(yesChange, false, 4);
+  ChangeTilesToIf noChangePebb= new ChangeTilesToIf(noChange, true, 4);
+  ChangeTilesToIf noChangeDande= new ChangeTilesToIf(noChange, false, 4);
+  // test apply on IFuncTile
+  // this will also test visitGrass, visitDandelions, and visitPebbles
+  /* This test includes tests for:
+   * ClickFunc
+   * ChangeToGrass
+   * ChangeToDande
+   * ChangeToPebbles
+   * ChangeTilesToIf
+   */
+  void testApplyIFuncTile(Tester t) {
+    t.checkExpect(clickLeft.apply(grass), dande);
+    t.checkExpect(clickLeft.apply(dande), grass);
+    t.checkExpect(clickLeft.apply(pebbs), grass);
+
+    t.checkExpect(clickRight.apply(grass), pebbs);
+    t.checkExpect(clickRight.apply(dande), dande);
+    t.checkExpect(clickRight.apply(pebbs), pebbs);
+
+    t.checkExpect(cTg.apply(grass), grass);
+    t.checkExpect(cTg.apply(dande), grass);
+    t.checkExpect(cTg.apply(pebbs), grass);
+
+    t.checkExpect(cTd.apply(grass), dande);
+    t.checkExpect(cTd.apply(dande), dande);
+    t.checkExpect(cTd.apply(pebbs), dande);
+
+    t.checkExpect(cTp.apply(grass), pebbs);
+    t.checkExpect(cTp.apply(dande), pebbs);
+    t.checkExpect(cTp.apply(pebbs), pebbs);
+
+    t.checkExpect(yesChangePebb.apply(grass), pebbs);
+    t.checkExpect(yesChangePebb.apply(dande), pebbs);
+    t.checkExpect(yesChangePebb.apply(pebbs), pebbs);
+
+    t.checkExpect(yesChangeDande.apply(grass), dande);
+    t.checkExpect(yesChangeDande.apply(dande), dande);
+    t.checkExpect(yesChangeDande.apply(pebbs), dande);
+
+    t.checkExpect(noChangePebb.apply(grass), grass);
+    t.checkExpect(noChangePebb.apply(dande), dande);
+    t.checkExpect(noChangePebb.apply(pebbs), pebbs);
+
+    t.checkExpect(noChangeDande.apply(grass), grass);
+    t.checkExpect(noChangeDande.apply(dande), dande);
+    t.checkExpect(noChangeDande.apply(pebbs), pebbs);
+  }
+
+  IList<ITile> singletonRow = 
+      new ConsList<ITile>(new Grass(new Posn(0, 0)), mtTileList);
+
+
+  IList<IList<ITile>> singletonGrid = 
+      new ConsList<IList<ITile>>(singletonRow, mtListTileList);
+  // test DrawBoard functional class
+  void testDrawBoard(Tester t) {
+    DrawBoard db = new DrawBoard();
+    t.checkExpect(db.apply(singletonGrid), new AboveImage(new EmptyImage(), new DrawRow().apply(singletonRow)));
+    t.checkExpect(db.apply(mtListTileList), new EmptyImage());
+  }
+
+  // test DrawRow functional class
+  void testDrawRow(Tester t) {
+    DrawRow dr = new DrawRow();
+    t.checkExpect(dr.apply(singletonRow), new BesideImage(grass.draw(), new EmptyImage()));
+    t.checkExpect(dr.apply(mtTileList), new EmptyImage());
+  }
+
+  // test TileCollision functional class
+  void testTileCollision(Tester t) {
+    TileCollision yes = new TileCollision(new Posn(0, 0));
+    TileCollision no = new TileCollision(new Posn(60, 60));
+    t.checkExpect(yes.apply(grass), false);
+    t.checkExpect(yes.apply(dande), true);
+    t.checkExpect(yes.apply(pebbs), false);
+
+    t.checkExpect(no.apply(grass), false);
+    t.checkExpect(no.apply(dande), false);
+    t.checkExpect(no.apply(pebbs), false);
+  }
+  
+  int rowW = 6;
+  int colL = 6;
+
+  boolean testBigBang(Tester t) {
+    World w = new StartingWorld(rowW, colL);
+    int worldWidth = 40 * colL;
+    int worldHeight = 40 * rowW;
+    double tickRate = 1.0 / 28.0;
+    return w.bigBang(worldWidth, worldHeight, tickRate);
+  }
 }
 

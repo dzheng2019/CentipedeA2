@@ -53,7 +53,7 @@ class Board {
     this.gameBoard = this.makeBoard(row - 1, col - 1);
   }
 
-  // makes a board
+  // makes a board with the dimensions row + 1, col + 1
   IList<IList<ITile>> makeBoard(int row, int col) {
     /* Template:
      * Same as class template:
@@ -182,7 +182,8 @@ class Board {
      * player.getGrid(int unit, int row) - Posn
      */
     Posn location = player.getGrid(this.units, this.row);
-    return new Dart(new Posn(location.x * this.units + this.units / 2 , this.row*this.units - this.units / 2), speed, this.units / 2);
+    // makes a dart at the middle of the player location 
+    return new Dart(new Posn(location.x * this.units + this.units / 2 , this.row * this.units - this.units / 2), speed, this.units / 2);
   }
 
   // generates a random board 
@@ -438,12 +439,31 @@ class DrawRow implements IListVisitor<ITile, WorldImage> {
 class TileCollision implements IPred<ITile> {
   Posn collisionPoint;
 
+  /* Template:
+   * fields; 
+   * this.collisionPoint - posn
+   * methods
+   * this.apply(Itile arg) - boolean
+   * methods on fields:
+   * this.collisionPoint.x 
+   * this.colliosinPoint.y
+   */
+  
   TileCollision(Posn collisionPoint) {
     this.collisionPoint = collisionPoint;
   }
 
   // checks if a given tile collides with a given point
   public Boolean apply(ITile arg) {
+    /* Template:
+     * Parameter:
+     * arg - ITile
+     * Methods on parameter:
+     * arg.click(boolean isLeft) - ITile 
+     * arg.draw() - WorldImage
+     * arg.collidesWith(Posn collidePos) - boolean
+     * arg.accept(IFuncTile<T> func) - T
+     */
     return arg.collidesWith(this.collisionPoint);
   }
 }
@@ -656,7 +676,7 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
   IList<Integer> locs;
   boolean isPebbles;
   int cols;
-  
+
   /* Template:
    * Same a interface
    * Fields:
@@ -664,7 +684,7 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
    * isPebbles - boolean 
    * cols - int
    */
-  
+
   ChangeTilesToIf(IList<Integer> locs, boolean isPebbles, int cols) {
     this.locs = locs;
     this.isPebbles = isPebbles;
@@ -778,9 +798,7 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
       return new Dandelions(new Posn(location.x, location.y));
     }
   }
-
 }
 
-class ExamplesBoard {
 
-}
+

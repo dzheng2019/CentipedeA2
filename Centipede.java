@@ -338,19 +338,5 @@ class MoveHeads implements IListVisitor<CentipedeHead, IList<CentipedeHead>> {
 
 }
 
-// ROW THEN COLUMN
-class ExamplesGame {
-
-  int row = 10;
-  int col = 20;
-
-  boolean testBigBang(Tester t) {
-    World w = new StartingWorld(row, col);
-    int worldWidth = 40 * col;
-    int worldHeight = 40 * row;
-    double tickRate = 1.0 / 28.0;
-    return w.bigBang(worldWidth, worldHeight, tickRate);
-  }
-}
 
 

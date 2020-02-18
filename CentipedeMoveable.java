@@ -238,10 +238,10 @@ class CentipedeHead extends AMoveableObject {
     this.tail = tail;
   }
 
-  CentipedeHead(Posn location, 
+  CentipedeHead(
+      Posn location, 
       int speed, 
       int size,
-      int leftOrRight,
       Posn previousGoal,
       Posn goal,
       int unit) {
@@ -413,6 +413,7 @@ class CentipedeFollower extends AMoveableObject {
   public boolean validMove(Board b, Posn direction) {
     return true;
   }
+  
   Posn movedPosToGoal(Posn goal) {
     Util u = new Util(); 
     int moveX = (goal.x - this.location.x);

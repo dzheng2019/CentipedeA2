@@ -40,7 +40,7 @@ class Board {
    * u.createRandomInts(int num, int max, Random rand) - IList<Integer>
    * u.getCenter(Posn pos, int unit) - Posn 
    */
-  
+
   Board(IList<IList<ITile>> gameBoard) {
     this.row = gameBoard.length();
     this.col = new RowLength<ITile>().apply(gameBoard);
@@ -52,7 +52,7 @@ class Board {
     this.col = col;
     this.gameBoard = this.makeBoard(row - 1, col - 1);
   }
-  
+
   // makes a board
   IList<IList<ITile>> makeBoard(int row, int col) {
     /* Template:
@@ -114,7 +114,7 @@ class Board {
      * collidePos.x - int
      * collidePos.y - int
      */
-    
+
     Posn collideGridLocLeft = u.convertAbsoluteToGrid(new Posn(collidePos.x - size, collidePos.y), this.units, this.row);
 
     boolean tileCollisionLeft = 
@@ -139,7 +139,7 @@ class Board {
      * collidePos.x - int
      * collidePos.y - int
      */
-    
+
     Posn collideGridLocRight = u.convertAbsoluteToGrid(new Posn(collidePos.x + size, collidePos.y), this.units, this.row);
 
     boolean tileCollisionRight = 
@@ -163,7 +163,7 @@ class Board {
      * collidePos.x - int
      * collidePos.y - int
      */
-    
+
     boolean yCollision = collidePos.y - size < 0 || collidePos.y + size > this.row  * this.units;
 
     return yCollision || 
@@ -245,7 +245,7 @@ class Board {
 
 // visit tiles
 interface IFuncTile<T> extends IFunc<ITile, T> {
-  
+
   /* Template:
    * Same as interface
    * Methods:
@@ -253,13 +253,13 @@ interface IFuncTile<T> extends IFunc<ITile, T> {
    * visitDandelions(Dandelions dande) - T
    * visitPebbles(Pebbles pebb) - T
    */
-  
+
   // visits grass
   T visitGrass(Grass grass);
-  
+
   // visits dandelions
   T visitDandelions(Dandelions dande);
-  
+
   // visits pebbles
   T visitPebbles(Pebbles pebb);
 }
@@ -268,134 +268,317 @@ interface IFuncTile<T> extends IFunc<ITile, T> {
 class ClickFunc implements IFuncTile<ITile> {
 
   boolean isLeft;
-  
+
+  /* Template:
+   * Fields:
+   * this.isLeft - boolean
+   */
+
   ClickFunc(boolean isLeft) {
     this.isLeft = isLeft;
   }
-  
-  
+
+  // applies this to a tile
   public ITile apply(ITile arg) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * arg - ITile
+     * Methods on Parameter:
+     * arg.click(boolean isLeft) - ITile 
+     * arg.draw() - WorldImage
+     * arg.collidesWith(Posn collidePos) - boolean
+     * arg.accept(IFuncTile<T> func) - T
+     */
     return arg.accept(this);
   }
 
-  
+  // clicks a grass
   public ITile visitGrass(Grass grass) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * arg - ITile
+     * Methods on Parameter:
+     * grass.click(boolean isLeft) - ITile 
+     * grass.draw() - WorldImage
+     * grass.collidesWith(Posn collidePos) - boolean
+     * grass.accept(IFuncTile<T> func) - T
+     */
     return grass.click(isLeft);
   }
 
+  // clicks a dandelion
   public ITile visitDandelions(Dandelions dande) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * arg - ITile
+     * Methods on Parameter:
+     * dande.click(boolean isLeft) - ITile 
+     * dande.draw() - WorldImage
+     * dande.collidesWith(Posn collidePos) - boolean
+     * dande.accept(IFuncTile<T> func) - T
+     */
     return dande.click(isLeft);
   }
 
+  // clicks a pebbles
   public ITile visitPebbles(Pebbles pebb) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * arg - ITile
+     * Methods on Parameter:
+     * pebb.click(boolean isLeft) - ITile 
+     * pebb.draw() - WorldImage
+     * pebb.collidesWith(Posn collidePos) - boolean
+     * pebb.accept(IFuncTile<T> func) - T
+     */
     return pebb.click(isLeft);
   }
-  
 }
 
+// draws a board
 class DrawBoard implements IListVisitor<IList<ITile>, WorldImage> {
 
-  @Override
+  /* Template:
+   * Same as interface
+   */
+
+  // applies this function to a 2D list 
   public WorldImage apply(IList<IList<ITile>> arg) {
-    // TODO Auto-generated method stub
+    /*Template:
+     * Same as class
+     * Parameter:
+     * arg - IList<T>
+     * Methods on Parameter:
+     * arg.accept(IListVisitor<T, U> visitor) - U
+     * arg.length() - int
+     */
     return arg.accept(this);
   }
 
-  @Override
+  // visits an empty row 
   public WorldImage visitMt(MtList<IList<ITile>> mt) {
-    // TODO Auto-generated method stub
+    /*Template:
+     * Same as class
+     * Parameter:
+     * mt - MtList<T>
+     * Methods/Fields on Parameter:
+     * mt.accept(IListVisitor<T, U> visitor) - U
+     * mt.length() - int
+     */
     return new EmptyImage();
   }
 
-  @Override
+  // visits and draws a row
   public WorldImage visitCons(ConsList<IList<ITile>> cons) {
-    // TODO Auto-generated method stub
+    /*Template:
+     * Same as class
+     * Parameter:
+     * cons - ConsList<T>
+     * Methods/Fields on Parameter:
+     * cons.first - T
+     * cons.rest - IList<T>
+     * cons.accept(IListVisitor<T, U> visitor) - U
+     * cons.length() - int
+     */
     IListVisitor<ITile, WorldImage> rowVisitor = new DrawRow();
     return new AboveImage(cons.rest.accept(this), rowVisitor.apply(cons.first));
   }
-
 }
 
+// draws a row of tiles
 class DrawRow implements IListVisitor<ITile, WorldImage> {
 
-  @Override
+  // applies this function to a list of tiles
   public WorldImage apply(IList<ITile> arg) {
+    /*Template:
+     * Same as class
+     * Parameter:
+     * arg - IList<T>
+     * Methods on Parameter:
+     * arg.accept(IListVisitor<T, U> visitor) - U
+     * arg.length() - int
+     */
     return arg.accept(this);
   }
 
-  @Override
+  // draws an empty row
   public WorldImage visitMt(MtList<ITile> mt) {
+    /*Template:
+     * Same as class
+     * Parameter:
+     * mt - MtList<T>
+     * Methods/Fields on Parameter:
+     * mt.accept(IListVisitor<T, U> visitor) - U
+     * mt.length() - int
+     */
     return new EmptyImage();
   }
 
-  @Override
+  // draws an non empty row
   public WorldImage visitCons(ConsList<ITile> cons) {
+    /*Template:
+     * Same as class
+     * Parameter:
+     * cons - ConsList<T>
+     * Methods/Fields on Parameter:
+     * cons.first - T
+     * cons.rest - IList<T>
+     * cons.accept(IListVisitor<T, U> visitor) - U
+     * cons.length() - int
+     */
     return new BesideImage(cons.first.draw(), this.apply(cons.rest));
   }
 }
 
+// checks if a position is in a tile
 class TileCollision implements IPred<ITile> {
   Posn collisionPoint;
+
   TileCollision(Posn collisionPoint) {
     this.collisionPoint = collisionPoint;
   }
-  @Override
+
+  // checks if a given tile collides with a given point
   public Boolean apply(ITile arg) {
     return arg.collidesWith(this.collisionPoint);
   }
 }
 
+// change a tile to grass 
 class ChangeToGrass implements IFuncTile<ITile> {
 
-  @Override
+  /* Template:
+   * Same as interface
+   */
+
+  // applies this function to a tile 
   public ITile apply(ITile arg) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * arg - ITile
+     * Methods on parameter:
+     * arg.click(boolean isLeft) - ITile 
+     * arg.draw() - WorldImage
+     * arg.collidesWith(Posn collidePos) - boolean
+     * arg.accept(IFuncTile<T> func) - T
+     */
     return arg.accept(this);
   }
 
-  @Override
+  // makes a grass a grass
   public ITile visitGrass(Grass grass) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * grass - Grass
+     * Methods on parameter:
+     * grass.click(boolean isLeft) - ITile 
+     * grass.draw() - WorldImage
+     * grass.collidesWith(Posn collidePos) - boolean
+     * grass.accept(IFuncTile<T> func) - T
+     * grass.gridLocation - Posn
+     */
     return grass;
   }
 
-  @Override
+  // makes a dandelion a grass
   public ITile visitDandelions(Dandelions dande) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * dande - Dandelions
+     * Methods on parameter:
+     * dande.click(boolean isLeft) - ITile 
+     * dande.draw() - WorldImage
+     * dande.collidesWith(Posn collidePos) - boolean
+     * dande.accept(IFuncTile<T> func) - T
+     * dande.gridLocation - Posn
+     */
     return new Grass(dande.gridLocation);
   }
 
-  @Override
+  // makes a pebbles a grass
   public ITile visitPebbles(Pebbles pebb) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * pebb - Pebbles
+     * Methods on parameter:
+     * pebb.click(boolean isLeft) - ITile 
+     * pebb.draw() - WorldImage
+     * pebb.collidesWith(Posn collidePos) - boolean
+     * pebb.accept(IFuncTile<T> func) - T
+     * pebb.gridLocation - Posn
+     */
     return new Grass(pebb.gridLocation);
   }
 
 }
 
+// changes a tile to a dandelion
 class ChangeToDandelion implements IFuncTile<ITile> {
 
-  @Override
+  /* Template
+   * Same as interface
+   */
+
+  // applies this function to a tile 
   public ITile apply(ITile arg) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * arg - ITile
+     * Methods on parameter:
+     * arg.click(boolean isLeft) - ITile 
+     * arg.draw() - WorldImage
+     * arg.collidesWith(Posn collidePos) - boolean
+     * arg.accept(IFuncTile<T> func) - T
+     */   
     return arg.accept(this);
   }
 
-  @Override
+  // makes a grass a dandelion
   public ITile visitGrass(Grass grass) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * grass - Grass
+     * Methods on parameter:
+     * grass.click(boolean isLeft) - ITile 
+     * grass.draw() - WorldImage
+     * grass.collidesWith(Posn collidePos) - boolean
+     * grass.accept(IFuncTile<T> func) - T
+     * grass.gridLocation - Posn
+     */
     return new Dandelions(grass.gridLocation);
   }
 
-  @Override
+  // makes a dandelion a dandelion
   public ITile visitDandelions(Dandelions dande) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * dande - Dandelions
+     * Methods on parameter:
+     * dande.click(boolean isLeft) - ITile 
+     * dande.draw() - WorldImage
+     * dande.collidesWith(Posn collidePos) - boolean
+     * dande.accept(IFuncTile<T> func) - T
+     * dande.gridLocation - Posn
+     */
     return dande;
   }
 
-  @Override
+  // makes a pebbles a dandelion
   public ITile visitPebbles(Pebbles pebb) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * pebb - Pebbles
+     * Methods on parameter:
+     * pebb.click(boolean isLeft) - ITile 
+     * pebb.draw() - WorldImage
+     * pebb.collidesWith(Posn collidePos) - boolean
+     * pebb.accept(IFuncTile<T> func) - T
+     * pebb.gridLocation - Posn
+     */
     return new Dandelions(pebb.gridLocation);
   }
 
@@ -403,52 +586,117 @@ class ChangeToDandelion implements IFuncTile<ITile> {
 
 class ChangeToPebbles implements IFuncTile<ITile> {
 
-  @Override
+  /* Template
+   * Same as interface
+   */
+
+  // applies this function to a tile 
   public ITile apply(ITile arg) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * arg - ITile
+     * Methods on parameter:
+     * arg.click(boolean isLeft) - ITile 
+     * arg.draw() - WorldImage
+     * arg.collidesWith(Posn collidePos) - boolean
+     * arg.accept(IFuncTile<T> func) - T
+     */   
     return arg.accept(this);
   }
 
-  @Override
+  // makes this grass a pebbles
   public ITile visitGrass(Grass grass) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * grass - Grass
+     * Methods on parameter:
+     * grass.click(boolean isLeft) - ITile 
+     * grass.draw() - WorldImage
+     * grass.collidesWith(Posn collidePos) - boolean
+     * grass.accept(IFuncTile<T> func) - T
+     * grass.gridLocation - Posn
+     */
     return new Pebbles(grass.gridLocation);
   }
 
-  @Override
+  // makes this dandelion a pebble
   public ITile visitDandelions(Dandelions dande) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * dande - Dandelions
+     * Methods on parameter:
+     * dande.click(boolean isLeft) - ITile 
+     * dande.draw() - WorldImage
+     * dande.collidesWith(Posn collidePos) - boolean
+     * dande.accept(IFuncTile<T> func) - T
+     * dande.gridLocation - Posn
+     */
     return new Pebbles(dande.gridLocation);
   }
 
-  @Override
+  // makes this pebble a pebble
   public ITile visitPebbles(Pebbles pebb) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * pebb - Pebbles
+     * Methods on parameter:
+     * pebb.click(boolean isLeft) - ITile 
+     * pebb.draw() - WorldImage
+     * pebb.collidesWith(Posn collidePos) - boolean
+     * pebb.accept(IFuncTile<T> func) - T
+     * pebb.gridLocation - Posn
+     */
     return pebb;
   }
 }
 
-
-
+// changes a tile if its location is a list 
 class ChangeTilesToIf implements IFuncTile<ITile> {
 
   IList<Integer> locs;
   boolean isPebbles;
   int cols;
+  
+  /* Template:
+   * Same a interface
+   * Fields:
+   * locs - IList<Integer>
+   * isPebbles - boolean 
+   * cols - int
+   */
+  
   ChangeTilesToIf(IList<Integer> locs, boolean isPebbles, int cols) {
     this.locs = locs;
     this.isPebbles = isPebbles;
     this.cols = cols;
   }
 
-  @Override
+  // applies this function to a tile
   public ITile apply(ITile arg) {
-    // TODO Auto-generated method stub
+    /* Template:
+     * Parameter:
+     * arg - ITile
+     * Methods on parameter:
+     * arg.click(boolean isLeft) - ITile 
+     * arg.draw() - WorldImage
+     * arg.collidesWith(Posn collidePos) - boolean
+     * arg.accept(IFuncTile<T> func) - T
+     */ 
     return arg.accept(this);
   }
 
-  @Override
+  // changes a grass to a pebble or dandelion if its location is in the list
   public ITile visitGrass(Grass grass) {
+    /* Template:
+     * Parameter:
+     * grass - Grass
+     * Methods on parameter:
+     * grass.click(boolean isLeft) - ITile 
+     * grass.draw() - WorldImage
+     * grass.collidesWith(Posn collidePos) - boolean
+     * grass.accept(IFuncTile<T> func) - T
+     * grass.gridLocation - Posn
+     */
     if (containsLoc(grass.gridLocation)) {
       return this.pebbleOrDande(isPebbles, grass.gridLocation);
     } 
@@ -457,8 +705,18 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
     }
   }
 
-  @Override
+  // changes a dandelion to a pebble or dandelion if its location is in the list
   public ITile visitDandelions(Dandelions dande) {
+    /* Template:
+     * Parameter:
+     * dande - Dandelions
+     * Methods on parameter:
+     * dande.click(boolean isLeft) - ITile 
+     * dande.draw() - WorldImage
+     * dande.collidesWith(Posn collidePos) - boolean
+     * dande.accept(IFuncTile<T> func) - T
+     * dande.gridLocation - Posn
+     */
     if (containsLoc(dande.gridLocation)) {
       return this.pebbleOrDande(isPebbles, dande.gridLocation);
     } 
@@ -467,8 +725,18 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
     }
   }
 
-  @Override
+  // changes a pebbles to a pebble or dandelion if its location is in the list
   public ITile visitPebbles(Pebbles pebb) {
+    /* Template:
+     * Parameter:
+     * pebb - Pebbles
+     * Methods on parameter:
+     * pebb.click(boolean isLeft) - ITile 
+     * pebb.draw() - WorldImage
+     * pebb.collidesWith(Posn collidePos) - boolean
+     * pebb.accept(IFuncTile<T> func) - T
+     * pebb.gridLocation - Posn
+     */
     if (containsLoc(pebb.gridLocation)) {
       return this.pebbleOrDande(isPebbles, pebb.gridLocation);
     } 
@@ -477,13 +745,32 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
     }
   }
 
+  // determines if a list of ints contains a given loc converted to an int
   boolean containsLoc(Posn location) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * location - posn
+     * fields of parameters:
+     * location.x - int
+     * locaiton.y - int
+     */
     return new OrMap<Integer>(
         new ContainsInt(
             (location.y * this.cols) + location.x)).apply(locs);
   }
 
+  // makes a pebble or a dandelion at a location 
   ITile pebbleOrDande(boolean isPebbles, Posn location) {
+    /* Template:
+     * Same as class
+     * Parameter:
+     * location - posn
+     * isPebbles - boolean
+     * fields of parameters:
+     * location.x - int
+     * locaiton.y - int
+     */
     if (isPebbles) {
       return new Pebbles(new Posn(location.x, location.y));
     } 
@@ -495,5 +782,5 @@ class ChangeTilesToIf implements IFuncTile<ITile> {
 }
 
 class ExamplesBoard {
- 
+
 }

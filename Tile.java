@@ -212,7 +212,7 @@ class Pebbles extends ATile {
   }
 }
 
-// created for test purposes
+// created for test purposes only 
 // returns 0 when visiting a grass
 // returns 1 when visiting a dandelion
 // returns 2 when visiting a pebble

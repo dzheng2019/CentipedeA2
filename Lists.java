@@ -1,4 +1,3 @@
-import tester.*;
 
 // represents a list of type t
 interface IList<T> {

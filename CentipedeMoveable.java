@@ -1,5 +1,4 @@
 import java.awt.Color;
-
 import javalib.funworld.WorldScene;
 import javalib.worldimages.CircleImage;
 import javalib.worldimages.EquilateralTriangleImage;
@@ -7,7 +6,6 @@ import javalib.worldimages.OutlineMode;
 import javalib.worldimages.Posn;
 import javalib.worldimages.RotateImage;
 import javalib.worldimages.WorldImage;
-import tester.Tester;
 
 // Finds the first centipede head which collides with the given position
 // then splits the head at that location and appends back into a list of heads

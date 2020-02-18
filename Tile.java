@@ -1,6 +1,5 @@
 import java.awt.Color;
 import javalib.worldimages.*;
-import tester.*;
 
 // represents a tile in game
 interface ITile {

@@ -1,6 +1,5 @@
 import javalib.worldimages.Posn;
 import java.util.*;
-import tester.Tester;
 
 class Util {
   

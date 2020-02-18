@@ -1,8 +1,7 @@
 import javalib.funworld.WorldScene;
 import java.util.Random;
-import javalib.worldcanvas.WorldCanvas;
 import javalib.worldimages.*;
-import tester.Tester;
+
 class Board {
   IList<IList<ITile>> gameBoard;
   int row;
@@ -65,7 +64,9 @@ class Board {
       return new MtList<IList<ITile>>();
     }
     else {
-      return new ConsList<IList<ITile>>(this.makeRow(this.row - 1 - row, col), this.makeBoard(row - 1, col));
+      return new ConsList<IList<ITile>>(
+          this.makeRow(this.row - 1 - row, col),
+          this.makeBoard(row - 1, col));
     }
   }
 
@@ -82,7 +83,9 @@ class Board {
       return new MtList<ITile>();
     }
     else {
-      return new ConsList<ITile>(new Grass(new Posn(this.col - 1 - col, row)), this.makeRow(row, col - 1));
+      return new ConsList<ITile>(
+          new Grass(new Posn(this.col - 1 - col, row)),
+          this.makeRow(row, col - 1));
     }
   }
 
@@ -115,7 +118,10 @@ class Board {
      * collidePos.y - int
      */
 
-    Posn collideGridLocLeft = u.convertAbsoluteToGrid(new Posn(collidePos.x - size, collidePos.y), this.units, this.row);
+    Posn collideGridLocLeft = 
+        u.convertAbsoluteToGrid(
+            new Posn(collidePos.x - size, collidePos.y), 
+            this.units, this.row);
 
     boolean tileCollisionLeft = 
         new OrMap<IList<ITile>>(
@@ -140,14 +146,17 @@ class Board {
      * collidePos.y - int
      */
 
-    Posn collideGridLocRight = u.convertAbsoluteToGrid(new Posn(collidePos.x + size, collidePos.y), this.units, this.row);
+    Posn collideGridLocRight =
+        u.convertAbsoluteToGrid(
+            new Posn(collidePos.x + size, collidePos.y), 
+            this.units, this.row);
 
     boolean tileCollisionRight = 
         new OrMap<IList<ITile>>(
             new OrMapListPred<ITile>(
                 new TileCollision(collideGridLocRight))).apply(this.gameBoard);
 
-    boolean xCollision = collidePos.x + size>= this.col * this.units;
+    boolean xCollision = collidePos.x + size >= this.col * this.units;
 
     return tileCollisionRight || xCollision;
   }
@@ -166,9 +175,9 @@ class Board {
 
     boolean yCollision = collidePos.y - size < 0 || collidePos.y + size > this.row  * this.units;
 
-    return yCollision || 
-        this.collisionOccursRight(collidePos, size) ||
-        this.collisionOccursLeft(collidePos, size);
+    return yCollision 
+        || this.collisionOccursRight(collidePos, size)
+        || this.collisionOccursLeft(collidePos, size);
   }
 
   // produces a dart at the player's grid location
@@ -183,7 +192,10 @@ class Board {
      */
     Posn location = player.getGrid(this.units, this.row);
     // makes a dart at the middle of the player location 
-    return new Dart(new Posn(location.x * this.units + this.units / 2 , this.row * this.units - this.units / 2), speed, this.units / 2);
+    return new Dart(
+        new Posn(location.x * this.units + this.units / 2 , 
+            this.row * this.units - this.units / 2), 
+        speed, this.units / 2);
   }
 
   // generates a random board 
@@ -199,7 +211,7 @@ class Board {
      */
     IList<Integer> randomLocs =  
         new IncrementAllByX(col).apply(u.createRandomInts(
-            num, row*col, rand));
+            num, row * col, rand));
     IList<IList<ITile>> newGameBoard = new Map<IList<ITile>, IList<ITile>>(
         new MapList<ITile, ITile>(
             new ChangeTilesToIf(
@@ -222,10 +234,16 @@ class Board {
      */
     Posn gridLoc = u.convertAbsoluteToGrid(location, this.units, this.row);
     if (createPebble) {
-      return new Board(new ChangeAtXY<ITile>(new ChangeToPebbles(), gridLoc.x, gridLoc.y).apply(this.gameBoard));      
+      return new Board(
+          new ChangeAtXY<ITile>(
+              new ChangeToPebbles(), gridLoc.x, gridLoc.y).apply(
+                  this.gameBoard));      
     }
     else {
-      return new Board(new ChangeAtXY<ITile>(new ChangeToDandelion(), gridLoc.x, gridLoc.y).apply(this.gameBoard));
+      return new Board(
+          new ChangeAtXY<ITile>(
+              new ChangeToDandelion(), gridLoc.x, gridLoc.y).apply(
+                  this.gameBoard));
     }
   }
 
@@ -240,7 +258,10 @@ class Board {
      * gridLoc.x - int 
      * gridLoc.y - int
      */
-    return new Board(new ChangeAtXY<ITile>(new ClickFunc(isLeft), gridLoc.x, gridLoc.y).apply(this.gameBoard));      
+    return new Board(
+        new ChangeAtXY<ITile>(
+            new ClickFunc(isLeft), gridLoc.x, gridLoc.y).apply(
+                this.gameBoard));      
   }
 }
 
@@ -448,7 +469,7 @@ class TileCollision implements IPred<ITile> {
    * this.collisionPoint.x 
    * this.colliosinPoint.y
    */
-  
+
   TileCollision(Posn collisionPoint) {
     this.collisionPoint = collisionPoint;
   }

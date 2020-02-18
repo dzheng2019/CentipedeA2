@@ -678,7 +678,7 @@ class ExamplesAll {
 
   IList<CentipedeHead> centipedes = 
       new ConsList<CentipedeHead>(
-          new CentipedeHead (
+          new CentipedeHead(
               new Posn(20, 20), 
               4, 
               this.unit / 2, 
@@ -740,10 +740,14 @@ class ExamplesAll {
   // test drawOnBoard in AMoveableObject
   void testDrawOnBoard(Tester t) {
     WorldScene scene = new WorldScene(2 * this.unit, this.row * this.unit);
-    t.checkExpect(g1.drawOnBoard(scene), scene.placeImageXY(g1.draw(), g1.location.x, g1.location.y));
-    t.checkExpect(d1.drawOnBoard(scene), scene.placeImageXY(d1.draw(), d1.location.x, d1.location.y));
-    t.checkExpect(g2.drawOnBoard(scene), scene.placeImageXY(g2.draw(), g2.location.x, g2.location.y));
-    t.checkExpect(d2.drawOnBoard(scene), scene.placeImageXY(d2.draw(), d2.location.x, d2.location.y));
+    t.checkExpect(g1.drawOnBoard(scene), 
+        scene.placeImageXY(g1.draw(), g1.location.x, g1.location.y));
+    t.checkExpect(d1.drawOnBoard(scene), 
+        scene.placeImageXY(d1.draw(), d1.location.x, d1.location.y));
+    t.checkExpect(g2.drawOnBoard(scene), 
+        scene.placeImageXY(g2.draw(), g2.location.x, g2.location.y));
+    t.checkExpect(d2.drawOnBoard(scene), 
+        scene.placeImageXY(d2.draw(), d2.location.x, d2.location.y));
   }
 
   // test move in gnome
@@ -1006,17 +1010,18 @@ class ExamplesAll {
 
   IList<Integer> mtInt = new MtList<Integer>();
   IList<Integer> yesChange = new ConsList<Integer>(0, mtInt);
-  IList<Integer> noChange= new ConsList<Integer>(5, mtInt);
+  IList<Integer> noChange = new ConsList<Integer>(5, mtInt);
 
   ClickFunc clickLeft = new ClickFunc(true);
   ClickFunc clickRight = new ClickFunc(false);
   ChangeToGrass cTg = new ChangeToGrass();
   ChangeToDandelion cTd = new ChangeToDandelion();
   ChangeToPebbles cTp = new ChangeToPebbles();
-  ChangeTilesToIf yesChangePebb= new ChangeTilesToIf(yesChange, true, 4);
-  ChangeTilesToIf yesChangeDande= new ChangeTilesToIf(yesChange, false, 4);
-  ChangeTilesToIf noChangePebb= new ChangeTilesToIf(noChange, true, 4);
-  ChangeTilesToIf noChangeDande= new ChangeTilesToIf(noChange, false, 4);
+  ChangeTilesToIf yesChangePebb = new ChangeTilesToIf(yesChange, true, 4);
+  ChangeTilesToIf yesChangeDande = new ChangeTilesToIf(yesChange, false, 4);
+  ChangeTilesToIf noChangePebb = new ChangeTilesToIf(noChange, true, 4);
+  ChangeTilesToIf noChangeDande = new ChangeTilesToIf(noChange, false, 4);
+  
   // test apply on IFuncTile
   // this will also test visitGrass, visitDandelions, and visitPebbles
   /* This test includes tests for:
@@ -1070,10 +1075,13 @@ class ExamplesAll {
 
   IList<IList<ITile>> singletonGrid = 
       new ConsList<IList<ITile>>(singletonRow, mtListTileList);
+  
   // test DrawBoard functional class
   void testDrawBoard(Tester t) {
     DrawBoard db = new DrawBoard();
-    t.checkExpect(db.apply(singletonGrid), new AboveImage(new EmptyImage(), new DrawRow().apply(singletonRow)));
+    t.checkExpect(db.apply(singletonGrid), 
+        new AboveImage(new EmptyImage(), 
+            new DrawRow().apply(singletonRow)));
     t.checkExpect(db.apply(mtListTileList), new EmptyImage());
   }
 
@@ -1451,6 +1459,14 @@ class ExamplesAll {
     t.checkExpect(func3.apply(f3_move3), true);
     t.checkExpect(func3.apply(f3_move1), false);
   }
+  
+  
+  /* Code below is for testing the game itself
+   * Testing methods inside the game seemed redundant
+   * as the game only calls methods that have been tested above
+   * the game simple passes its own fields to different instances
+   * and updates it fields using the methods tested above
+   */
   
   int rowW = 6;
   int colL = 6;

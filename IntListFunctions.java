@@ -1,8 +1,4 @@
-import java.util.Random;
-import javalib.funworld.*;
-import javalib.worldimages.*;
-import java.awt.Color;
-import tester.Tester;
+
 
 // increments all elements in a list above x by one 
 class IncrementAboveX implements IListVisitor<Integer, IList<Integer>> {

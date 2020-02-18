@@ -4,8 +4,6 @@ import javalib.worldimages.*;
 import java.awt.Color;
 
 
-import tester.Tester;
-
 // represetns a moveable object
 abstract class AMoveableObject {
   Posn location;
@@ -235,8 +233,8 @@ class Gnome extends AMoveableObject {
   }
 }
 
-// represetns a dart
-class Dart extends AMoveableObject{
+// represents a dart
+class Dart extends AMoveableObject {
 
   /* Template:
    * Same as abstract class

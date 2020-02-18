@@ -7,10 +7,12 @@ import javalib.worldimages.AboveImage;
 import javalib.worldimages.BesideImage;
 import javalib.worldimages.CircleImage;
 import javalib.worldimages.EmptyImage;
+import javalib.worldimages.EquilateralTriangleImage;
 import javalib.worldimages.OutlineMode;
 import javalib.worldimages.OverlayImage;
 import javalib.worldimages.Posn;
 import javalib.worldimages.RectangleImage;
+import javalib.worldimages.RotateImage;
 import javalib.worldimages.WorldImage;
 import tester.*;
 
@@ -1093,6 +1095,361 @@ class ExamplesAll {
     t.checkExpect(no.apply(grass), false);
     t.checkExpect(no.apply(dande), false);
     t.checkExpect(no.apply(pebbs), false);
+  }
+  
+  Posn startPos = new Posn(20, 20);
+  int centiSpeed = 8;
+  int centiSize = 20;
+  Posn startGoal = new Posn(20, 20);
+  Posn goal1 = new Posn(60, 20);
+  Posn goal2 = new Posn(60, 60);
+
+  CentipedeFollower f1 = new CentipedeFollower(startPos, centiSpeed, centiSize, startPos, unit);
+  CentipedeFollower f2 = new CentipedeFollower(startPos, centiSpeed, centiSize, startPos, unit);
+  CentipedeFollower f3 = new CentipedeFollower(startPos, centiSpeed, centiSize, startPos, unit);
+  CentipedeFollower f4 = new CentipedeFollower(startPos, centiSpeed, centiSize, startPos, unit);
+  CentipedeFollower f5 = new CentipedeFollower(startPos, centiSpeed, centiSize, startPos, unit);
+  IList<CentipedeFollower> oneStartFollowers = new ConsList<CentipedeFollower>(f5,
+      new MtList<CentipedeFollower>());
+  IList<CentipedeFollower> twoStartFollowers = new ConsList<CentipedeFollower>(f4,
+      oneStartFollowers);
+  IList<CentipedeFollower> threeStartFollowers = new ConsList<CentipedeFollower>(f3,
+      twoStartFollowers);
+  IList<CentipedeFollower> fourStartFollowers = new ConsList<CentipedeFollower>(f2,
+      threeStartFollowers);
+  IList<CentipedeFollower> fiveStartFollowers = new ConsList<CentipedeFollower>(f1,
+      fourStartFollowers);
+  CentipedeHead h_three = new CentipedeHead(startPos, centiSpeed, centiSize, startPos, startGoal,
+      unit, threeStartFollowers);
+  CentipedeHead h_five = new CentipedeHead(startPos, centiSpeed, centiSize, startPos, startGoal,
+      unit, fiveStartFollowers);
+  CentipedeHead h_three_convenience = new CentipedeHead(startPos, centiSpeed, centiSize, startPos,
+      startGoal, unit, 3);
+  CentipedeHead h_five_convenience = new CentipedeHead(startPos, centiSpeed, centiSize, startPos,
+      startGoal, unit, 5);
+
+  CentipedeFollower f3_move1 = new CentipedeFollower(new Posn(28, 20), centiSpeed, centiSize,
+      new Posn(20, 20), unit);
+  CentipedeFollower f3_move2 = new CentipedeFollower(new Posn(36, 20), centiSpeed, centiSize,
+      new Posn(20, 20), unit);
+  CentipedeFollower f3_move3 = new CentipedeFollower(new Posn(44, 20), centiSpeed, centiSize,
+      new Posn(20, 20), unit);
+  CentipedeFollower f3_move4 = new CentipedeFollower(new Posn(52, 20), centiSpeed, centiSize,
+      new Posn(20, 20), unit);
+  CentipedeFollower f3_move5 = new CentipedeFollower(new Posn(60, 20), centiSpeed, centiSize,
+      new Posn(60, 20), unit);
+
+  IList<CentipedeFollower> variousf3 = new ConsList<CentipedeFollower>(f3_move3,
+      new ConsList<CentipedeFollower>(f3_move4,
+          new ConsList<CentipedeFollower>(f3_move5, new MtList<CentipedeFollower>())));
+
+  IList<CentipedeFollower> oneFollower = new ConsList<CentipedeFollower>(f3_move1,
+      new MtList<CentipedeFollower>());
+  IList<CentipedeFollower> twoFollowers = new ConsList<CentipedeFollower>(f3_move2, oneFollower);
+  IList<CentipedeFollower> threeFollowers = new ConsList<CentipedeFollower>(f3_move1, twoFollowers);
+  IList<CentipedeFollower> fourFollowers = new ConsList<CentipedeFollower>(f3_move1,
+      threeFollowers);
+  IList<CentipedeFollower> fiveFollowers = new ConsList<CentipedeFollower>(f3_move1, fourFollowers);
+
+  CentipedeFollower f3_move1_update = new CentipedeFollower(new Posn(20, 20), centiSpeed, centiSize,
+      new Posn(20, 20), unit);
+  CentipedeFollower f3_move2_update = new CentipedeFollower(new Posn(20, 20), centiSpeed, centiSize,
+      new Posn(20, 20), unit);
+
+  IList<CentipedeFollower> oneFollower_update = new ConsList<CentipedeFollower>(f3_move1_update,
+      new MtList<CentipedeFollower>());
+  IList<CentipedeFollower> twoFollowers_update = new ConsList<CentipedeFollower>(f3_move2_update,
+      oneFollower_update);
+  IList<CentipedeFollower> threeFollowers_update = new ConsList<CentipedeFollower>(f3_move1_update,
+      twoFollowers_update);
+  IList<CentipedeFollower> fourFollowers_update = new ConsList<CentipedeFollower>(f3_move1_update,
+      threeFollowers_update);
+  IList<CentipedeFollower> fiveFollowers_update = new ConsList<CentipedeFollower>(f3_move1_update,
+      fourFollowers_update);
+
+  CentipedeHead h_three_move1 = new CentipedeHead(new Posn(28, 20), centiSpeed, centiSize, startPos,
+      goal1, unit, threeStartFollowers);
+  CentipedeHead h_three_move2 = new CentipedeHead(new Posn(36, 20), centiSpeed, centiSize, startPos,
+      goal1, unit, threeStartFollowers);
+  CentipedeHead h_three_move3 = new CentipedeHead(new Posn(44, 20), centiSpeed, centiSize, startPos,
+      goal1, unit, threeStartFollowers);
+  CentipedeHead h_three_turnRight = new CentipedeHead(new Posn(52, 20), centiSpeed, centiSize,
+      startPos, goal1, unit, threeStartFollowers);
+  CentipedeHead h_three_move5 = new CentipedeHead(new Posn(60, 20), centiSpeed, centiSize, startPos,
+      goal1, unit, threeStartFollowers);
+  CentipedeHead h_three_move6 = new CentipedeHead(new Posn(60, 28), centiSpeed, centiSize, goal1,
+      goal2, unit, new ConsList<CentipedeFollower>(f3_move1, twoStartFollowers));
+  CentipedeHead h_three_move7 = new CentipedeHead(new Posn(60, 36), centiSpeed, centiSize, goal1,
+      goal2, unit, new ConsList<CentipedeFollower>(f3_move2, twoStartFollowers));
+  CentipedeHead h_three_move8 = new CentipedeHead(new Posn(60, 44), centiSpeed, centiSize, goal1,
+      goal2, unit, new ConsList<CentipedeFollower>(f3_move3, twoStartFollowers));
+  CentipedeHead h_three_move9 = new CentipedeHead(new Posn(60, 52), centiSpeed, centiSize, goal1,
+      goal2, unit, new ConsList<CentipedeFollower>(f3_move4, twoStartFollowers));
+
+  CentipedeHead head_only = new CentipedeHead(new Posn(60, 52), centiSpeed, centiSize, goal1, goal2,
+      unit, new MtList<CentipedeFollower>());
+
+  CentipedeHead f1ToHead = new CentipedeHead(new Posn(20, 20), centiSpeed, centiSize, startPos,
+      new Posn(20, 60), unit, fourStartFollowers);
+
+  CentipedeHead f2ToHead = new CentipedeHead(new Posn(20, 20), centiSpeed, centiSize, startPos,
+      new Posn(20, 60), unit, threeStartFollowers);
+
+  CentipedeHead f3ToHead = new CentipedeHead(new Posn(20, 20), centiSpeed, centiSize, startPos,
+      new Posn(20, 60), unit, twoStartFollowers);
+
+  CentipedeHead f4ToHead = new CentipedeHead(new Posn(20, 20), centiSpeed, centiSize, startPos,
+      new Posn(20, 60), unit, oneStartFollowers);
+
+  CentipedeHead f5ToHead = new CentipedeHead(new Posn(20, 20), centiSpeed, centiSize, startPos,
+      new Posn(20, 60), unit, new MtList<CentipedeFollower>());
+
+  IList<CentipedeHead> two_heads = new ConsList<CentipedeHead>(h_three,
+      new ConsList<CentipedeHead>(h_three_move9, new MtList<CentipedeHead>()));
+
+  IList<CentipedeHead> twoStartToHead = new ConsList<CentipedeHead>(f4ToHead,
+      new MtList<CentipedeHead>());
+
+  // Board is 80 pixels wide by 80 pixels tall
+  Board boardNoObstacles = new Board(2, 2);
+
+  // Board is 240 pixels wide by 160 pixels tall
+  Board boardObstacles = new Board(6, 4).changeAtLocation(new Posn(1, 2), false)
+      .changeAtLocation(new Posn(0, 1), false).changeAtLocation(new Posn(1, 1), false);
+
+  WorldScene boardNoObstaclesScene = new WorldScene(80, 80);
+
+  void testCentiConstructors(Tester t) {
+    t.checkExpect(h_three, h_three_convenience);
+    t.checkExpect(h_five, h_five_convenience);
+    t.checkExpect(h_three.createTail(30).length(), 30);
+    t.checkExpect(h_three.createTail(3), threeStartFollowers);
+    t.checkExpect(h_three.createTail(5), fiveStartFollowers);
+  }
+
+  // Testing that the centipede drops down first then turns right when goal is
+  // below and to right
+  // This should always skip a row because the centipede's goal is to the right of
+  // it in the second row
+  // Since the centipede normally moves to the left in the second row, it checks
+  // collisisons to the left.
+  // There is a wall there, so the centipede will go down
+  void testDropTurnRight(Tester t) {
+    t.checkExpect(this.h_three.move(boardNoObstacles), h_three_move1);
+    t.checkExpect(this.h_three_move1.move(boardNoObstacles), h_three_move2);
+    t.checkExpect(this.h_three_move2.move(boardNoObstacles), h_three_move3);
+    t.checkExpect(this.h_three_move3.move(boardNoObstacles), h_three_turnRight);
+    t.checkExpect(this.h_three_turnRight.move(boardNoObstacles), h_three_move5);
+    t.checkExpect(this.h_three_move5.move(boardNoObstacles), h_three_move6);
+    t.checkExpect(this.h_three_move6.move(boardNoObstacles), h_three_move7);
+    t.checkExpect(this.h_three_move7.move(boardNoObstacles), h_three_move8);
+    t.checkExpect(this.h_three_move8.move(boardNoObstacles), h_three_move9);
+  }
+
+  // test shortentail in centipedehead
+  void testShortenTail(Tester t) {
+    t.checkExpect(h_three_move1.shortenTail(new MtList<CentipedeFollower>()),
+        new CentipedeHead(new Posn(28, 20), centiSpeed, centiSize, startPos, goal1, unit,
+            new MtList<CentipedeFollower>()));
+    t.checkExpect(h_three_move3.shortenTail(oneStartFollowers), new CentipedeHead(new Posn(44, 20),
+        centiSpeed, centiSize, startPos, goal1, unit, oneStartFollowers));
+    t.checkExpect(h_three_move6.shortenTail(fourFollowers), new CentipedeHead(new Posn(60, 28),
+        centiSpeed, centiSize, goal1, goal2, unit, fourFollowers));
+  }
+
+  // test headwithnewpos in centipedehead
+  void testHeadWithNewPos(Tester t) {
+    t.checkExpect(h_three_move2.headWithNewPos(new Posn(0, 0)), new CentipedeHead(new Posn(0, 0),
+        centiSpeed, centiSize, startPos, goal1, unit, threeStartFollowers));
+    t.checkExpect(h_three_turnRight.headWithNewPos(new Posn(63, 71)), new CentipedeHead(
+        new Posn(63, 71), centiSpeed, centiSize, startPos, goal1, unit, threeStartFollowers));
+    t.checkExpect(h_five.headWithNewPos(new Posn(253, 167)), new CentipedeHead(new Posn(253, 167),
+        centiSpeed, centiSize, startPos, startGoal, unit, fiveStartFollowers));
+  }
+
+  // test headwithnewgoal in centipedehead
+  void testHeadWithNewGoal(Tester t) {
+    t.checkExpect(h_three_move2.headWithNewGoal(new Posn(56, 40)),
+        new CentipedeHead(new Posn(44, 20), centiSpeed, centiSize, new Posn(60, 20),
+            new Posn(56, 40), unit, threeStartFollowers));
+    t.checkExpect(h_three_turnRight.headWithNewGoal(new Posn(37, 120)),
+        new CentipedeHead(new Posn(60, 20), centiSpeed, centiSize, new Posn(60, 20),
+            new Posn(37, 120), unit, threeStartFollowers));
+    t.checkExpect(h_five.headWithNewGoal(new Posn(195, 78)), new CentipedeHead(startPos, centiSpeed,
+        centiSize, startPos, new Posn(195, 78), unit, fiveStartFollowers));
+  }
+
+  // test nextpos in centipedehead
+  void testNextPos(Tester t) {
+    t.checkExpect(h_three_move1.nextPos(), new Posn(36, 20));
+    t.checkExpect(h_three_move2.nextPos(), new Posn(44, 20));
+    t.checkExpect(h_three_move5.nextPos(), new Posn(60, 20));
+    t.checkExpect(h_three_move7.nextPos(), new Posn(60, 44));
+  }
+
+  // test getnextgoal in centipedehead
+  void testGetNextGoal(Tester t) {
+    t.checkExpect(h_three_move2.getNextGoal(this.boardObstacles), new Posn(20, 60));
+    t.checkExpect(h_three_turnRight.getNextGoal(this.boardObstacles), new Posn(100, 20));
+    t.checkExpect(h_three_move5.getNextGoal(this.boardObstacles), new Posn(100, 20));
+    t.checkExpect(h_five.getNextGoal(this.boardObstacles), new Posn(20, 60));
+    t.checkExpect(h_three_move8.getNextGoal(this.boardObstacles), new Posn(20, 60));
+  }
+
+  // test drawhead in centipedehead
+  void testDrawHead(Tester t) {
+    t.checkExpect(head_only.draw(),
+        new RotateImage(new EquilateralTriangleImage(centiSize * 2, OutlineMode.SOLID, Color.RED)
+            .movePinholeTo(new Posn(0, 0)), 180.0));
+    t.checkExpect(h_three.draw(),
+        new RotateImage(new EquilateralTriangleImage(centiSize * 2, OutlineMode.SOLID, Color.RED)
+            .movePinholeTo(new Posn(0, 0)), 90.0));
+    t.checkExpect(h_five.draw(),
+        new RotateImage(new EquilateralTriangleImage(centiSize * 2, OutlineMode.SOLID, Color.RED)
+            .movePinholeTo(new Posn(0, 0)), 90.0));
+    t.checkExpect(h_three_move9.draw(),
+        new RotateImage(new EquilateralTriangleImage(centiSize * 2, OutlineMode.SOLID, Color.RED)
+            .movePinholeTo(new Posn(0, 0)), 180.0));
+  }
+
+  // test drawfollower in centipede head
+  void testDrawFollower(Tester t) {
+    t.checkExpect(f1.draw(), new CircleImage(centiSize, OutlineMode.SOLID, Color.BLACK));
+    t.checkExpect(f3.draw(), new CircleImage(centiSize, OutlineMode.SOLID, Color.BLACK));
+    t.checkExpect(f3_move5.draw(), new CircleImage(centiSize, OutlineMode.SOLID, Color.BLACK));
+  }
+
+  // test movetailforward funcitonal object
+  void testMoveTailForward(Tester t) {
+    MoveTailForward func = new MoveTailForward(new Posn(80, 60));
+    t.checkExpect(func.apply(new MtList<CentipedeFollower>()), new MtList<CentipedeFollower>());
+    t.checkExpect(func.apply(this.oneStartFollowers), new ConsList<CentipedeFollower>(
+        f5.followToGoal(new Posn(80, 60)), new MtList<CentipedeFollower>()));
+    t.checkExpect(func.apply(this.threeFollowers),
+        new ConsList<CentipedeFollower>(f3_move1.followToGoal(new Posn(80, 60)),
+            new ConsList<CentipedeFollower>(f3_move2.followToGoal(new Posn(28, 20)),
+                new ConsList<CentipedeFollower>(f3_move1.followToGoal(new Posn(20, 20)),
+                    new MtList<CentipedeFollower>()))));
+  }
+
+  // test drawtail functional object
+  void testDrawTail(Tester t) {
+    DrawTail func = new DrawTail(boardNoObstaclesScene);
+    t.checkExpect(func.apply(new MtList<CentipedeFollower>()), boardNoObstaclesScene);
+    t.checkExpect(func.apply(threeFollowers_update), f3_move1_update.drawOnBoard(
+        f3_move2_update.drawOnBoard(f3_move1_update.drawOnBoard(boardNoObstaclesScene))));
+    t.checkExpect(func.apply(twoFollowers),
+        f3_move1.drawOnBoard(f3_move2.drawOnBoard(boardNoObstaclesScene)));
+  }
+
+  // test changecentipedeheadsatlocaiton functional object
+  void testChangeCentipedeHeadsAtLocation(Tester t) {
+    ChangeCentipedeHeadsAtLocation func1 = new ChangeCentipedeHeadsAtLocation(new Posn(60, 52));
+    ChangeCentipedeHeadsAtLocation func2 = new ChangeCentipedeHeadsAtLocation(new Posn(36, 20));
+    t.checkExpect(func1.apply(new MtList<CentipedeHead>()), new MtList<CentipedeHead>());
+    t.checkExpect(func1.apply(new ConsList<CentipedeHead>(head_only, new MtList<CentipedeHead>())),
+        new MtList<CentipedeHead>());
+    t.checkExpect(
+        func1.apply(new ConsList<CentipedeHead>(h_three_turnRight,
+            new ConsList<CentipedeHead>(head_only, new MtList<CentipedeHead>()))),
+        new ConsList<CentipedeHead>(h_three_turnRight, new MtList<CentipedeHead>()));
+    t.checkExpect(
+        func2.apply(new ConsList<CentipedeHead>(h_three_move7, new MtList<CentipedeHead>())),
+        new ConsList<CentipedeHead>(new CentipedeHead(new Posn(60, 36), centiSpeed, centiSize,
+            goal1, goal2, unit, new MtList<CentipedeFollower>()), twoStartToHead));
+  }
+
+  // test splitheadatlocaiton function object
+  void testSplitHeadAtLocation(Tester t) {
+    SplitHeadAtLocation func1 = new SplitHeadAtLocation(new Posn(60, 52));
+    SplitHeadAtLocation func2 = new SplitHeadAtLocation(new Posn(36, 20));
+    t.checkExpect(func1.apply(head_only), new MtList<CentipedeHead>());
+    t.checkExpect(func1.apply(h_three_turnRight),
+        new ConsList<CentipedeHead>(h_three_turnRight, new MtList<CentipedeHead>()));
+    t.checkExpect(func2.apply(h_three_move7),
+        new ConsList<CentipedeHead>(new CentipedeHead(new Posn(60, 36), centiSpeed, centiSize,
+            goal1, goal2, unit, new MtList<CentipedeFollower>()), twoStartToHead));
+  }
+
+  // test createhead function object
+  void testCreateHead(Tester t) {
+    CreateHead func = new CreateHead();
+    t.checkExpect(func.apply(new MtList<CentipedeFollower>()), new MtList<CentipedeHead>());
+    t.checkExpect(func.apply(oneStartFollowers),
+        new ConsList<CentipedeHead>(f5ToHead, new MtList<CentipedeHead>()));
+    t.checkExpect(func.apply(twoStartFollowers),
+        new ConsList<CentipedeHead>(f4ToHead, new MtList<CentipedeHead>()));
+    t.checkExpect(func.apply(threeStartFollowers),
+        new ConsList<CentipedeHead>(f3ToHead, new MtList<CentipedeHead>()));
+    t.checkExpect(func.apply(fourStartFollowers),
+        new ConsList<CentipedeHead>(f2ToHead, new MtList<CentipedeHead>()));
+  }
+
+  // test updatepreviousloc functional object
+  void testUpdatePreviousLoc(Tester t) {
+    UpdatePreviousLoc func = new UpdatePreviousLoc();
+    t.checkExpect(func.apply(new MtList<CentipedeFollower>()), new MtList<CentipedeHead>());
+    t.checkExpect(func.apply(oneStartFollowers), oneStartFollowers);
+    t.checkExpect(func.apply(fourStartFollowers), fourStartFollowers);
+    t.checkExpect(func.apply(oneFollower), oneFollower_update);
+    t.checkExpect(func.apply(twoFollowers), twoFollowers_update);
+    t.checkExpect(func.apply(threeFollowers), threeFollowers_update);
+    t.checkExpect(func.apply(fourFollowers), fourFollowers_update);
+    t.checkExpect(func.apply(fiveFollowers), fiveFollowers_update);
+  }
+
+  // test makeheadatindex functional object
+  void testMakeHeadAtIndex(Tester t) {
+    MakeHeadAtIndex func1 = new MakeHeadAtIndex(0);
+    MakeHeadAtIndex func2 = new MakeHeadAtIndex(2);
+
+    t.checkExpect(func1.apply(oneStartFollowers),
+        new ConsList<CentipedeHead>(f5ToHead, new MtList<CentipedeHead>()));
+    t.checkExpect(func1.apply(threeStartFollowers),
+        new ConsList<CentipedeHead>(f3ToHead, new MtList<CentipedeHead>()));
+    t.checkExpect(func1.apply(fiveStartFollowers),
+        new ConsList<CentipedeHead>(f1ToHead, new MtList<CentipedeHead>()));
+    t.checkExpect(func2.apply(oneStartFollowers), new MtList<CentipedeHead>());
+    t.checkExpect(func2.apply(threeStartFollowers),
+        new ConsList<CentipedeHead>(new CentipedeHead(new Posn(20, 20), centiSpeed, centiSize,
+            startPos, new Posn(20, 60), unit, new MtList<CentipedeFollower>()),
+            new MtList<CentipedeHead>()));
+  }
+
+  // Test that the method returns the index of the first object which is collided
+  // with
+  void testFindCollisionIndex(Tester t) {
+    FindCollisionIndex func1 = new FindCollisionIndex(new Posn(20, 20));
+    FindCollisionIndex func2 = new FindCollisionIndex(new Posn(75, 10));
+    FindCollisionIndex func3 = new FindCollisionIndex(new Posn(100, 40));
+
+    t.checkExpect(func1.apply(fiveStartFollowers), 0);
+    t.checkExpect(func2.apply(variousf3), 2);
+    t.checkExpect(func3.apply(variousf3), 3);
+  }
+
+  // test locationcollideswithhead functional object
+  void testLocationCollidesWithHead(Tester t) {
+    LocationCollidesWithHead func1 = new LocationCollidesWithHead(new Posn(20, 20));
+    LocationCollidesWithHead func2 = new LocationCollidesWithHead(new Posn(100, 20));
+    t.checkExpect(func1.apply(f5ToHead), true);
+    t.checkExpect(func1.apply(f2ToHead), true);
+    t.checkExpect(func2.apply(f4ToHead), false);
+    t.checkExpect(func2.apply(f3ToHead), false);
+  }
+
+  // test locationcollideswithfollower functional object
+  void testLocationCollidesWithFollower(Tester t) {
+    LocationCollidesWithFollower func1 = new LocationCollidesWithFollower(new Posn(20, 20));
+    LocationCollidesWithFollower func2 = new LocationCollidesWithFollower(new Posn(28, 20));
+    LocationCollidesWithFollower func3 = new LocationCollidesWithFollower(new Posn(54, 20));
+
+    t.checkExpect(func1.apply(f3_move1), true);
+    t.checkExpect(func1.apply(f3_move2), true);
+    t.checkExpect(func2.apply(f3_move4), false);
+    t.checkExpect(func2.apply(f3_move5), false);
+    t.checkExpect(func3.apply(f3_move3), true);
+    t.checkExpect(func3.apply(f3_move1), false);
   }
   
   int rowW = 6;

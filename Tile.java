@@ -22,7 +22,7 @@ interface ITile {
 // represents a tile 
 abstract class ATile implements ITile {
   Posn gridLocation; // x is column, y is row, where row 0 is the bottom 
-
+  
   ATile(Posn gridLocation) {
     this.gridLocation = gridLocation;
   }
@@ -126,22 +126,45 @@ class Grass extends ATile {
 // represents a dandelion tile
 class Dandelions extends ATile {
 
+  int hp;
+  
   /* Template:
    * Same as abstract class
    */
 
-  // constructs a dandelion at a given position
+  // constructs a dandelion at a given position, assuming full health of 3
   Dandelions(Posn gridLocation) {
-    super(gridLocation);
+    this(gridLocation, 3);
   }
+  
+  // default constructor
+  Dandelions(Posn gridLocation, int hp) {
+    super(gridLocation);
+    this.hp = hp;
+  }
+  
 
   // draws this tile 
   public WorldImage draw() {
     /* Template:
      * Same as class template
      */
+    
+    Color dandelionColor;    
+    if (this.hp == 1) {
+      dandelionColor = new Color(201, 192, 12); // darkest yellow
+    }
+    
+    else if (this.hp == 2) {
+      dandelionColor = new Color(227, 216, 14); //darker yellow 
+    }
+    
+    else {
+      dandelionColor = new Color(250, 238, 12); //bright yellow
+    }
+    
     return new OverlayImage(new RectangleImage(units, units, OutlineMode.OUTLINE, Color.BLACK),
-        new RectangleImage(units, units, OutlineMode.SOLID, Color.YELLOW));
+        new RectangleImage(units, units, OutlineMode.SOLID, dandelionColor));
   }
 
   // accepts a function of type tile
@@ -181,9 +204,17 @@ class Pebbles extends ATile {
    * Same as abstract class
    */
 
-  // constructs a Pebbles at a given grid location
-  Pebbles(Posn gridLocation) {
+  boolean partOfPile;
+  
+  // constructs a Pebbles at a given grid location that may or may not be part of a pile
+  Pebbles(Posn gridLocation, boolean partOfPile) {
     super(gridLocation);
+    this.partOfPile = partOfPile;
+  }
+  
+  // constructs a Pebble at a give grid location, assumed to not be part of a pile
+  Pebbles(Posn gridLocation) {
+    this(gridLocation, false);
   }
 
   // draw this tile

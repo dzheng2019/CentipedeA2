@@ -221,7 +221,8 @@ class Board {
         new ChangeToGrass(), 0, row - 1).apply(newGameBoard));
   }
 
-  // changes a tile at a given location to either a pebble or dandelion
+  // either decrements the health of a dandelion, possibly creative a pebble pile, or
+  // given location to either a pebble or dandelion
   Board changeAtLocation(Posn location, boolean createPebble) {
     /* Template:
      * Same as class template
@@ -234,10 +235,7 @@ class Board {
      */
     Posn gridLoc = u.convertAbsoluteToGrid(location, this.units, this.row);
     if (createPebble) {
-      return new Board(
-          new ChangeAtXY<ITile>(
-              new ChangeToPebbles(), gridLoc.x, gridLoc.y).apply(
-                  this.gameBoard));      
+      return new ApplyAtXY(gridLoc, new ReduceDandelionHP()).apply(this);
     }
     else {
       return new Board(
@@ -246,6 +244,7 @@ class Board {
                   this.gameBoard));
     }
   }
+  
 
   // clicks a tile at a given location 
   Board clickAtLocation(Posn gridLoc, boolean isLeft) {
@@ -263,6 +262,7 @@ class Board {
             new ClickFunc(isLeft), gridLoc.x, gridLoc.y).apply(
                 this.gameBoard));      
   }
+  
 }
 
 // visit tiles
@@ -285,6 +285,121 @@ interface IFuncTile<T> extends IFunc<ITile, T> {
   // visits pebbles
   T visitPebbles(Pebbles pebb);
 }
+
+
+class ApplyAtXY implements IFunc<Board, Board> {
+  Posn gridLoc;
+  IFuncTile<ITile> func;
+  ApplyAtXY(Posn gridLoc, IFuncTile<ITile> func) {
+    this.gridLoc = gridLoc;
+    this.func = func;
+  }
+  @Override
+  public Board apply(Board arg) {
+    // TODO Auto-generated method stub
+    IList<IList<ITile>> newGrid = 
+        new ChangeAtXY<ITile>(func, gridLoc.x, gridLoc.y).apply(arg.gameBoard);
+    return new Board(newGrid);
+  }
+  
+}
+
+class ReduceDandelionHP implements IFuncTile<ITile> {
+
+  @Override
+  public ITile apply(ITile arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public ITile visitGrass(Grass grass) {
+    // TODO Auto-generated method stub
+    return grass;
+  }
+
+  @Override
+  public ITile visitDandelions(Dandelions dande) {
+    // TODO Auto-generated method stub
+    if(dande.hp > 1) {
+      return new Dandelions(dande.gridLocation, dande.hp - 1);
+    }
+    else {
+      // creates a pebble which is part of a pebble pile (hence true)
+      return new Pebbles(dande.gridLocation, true); 
+    }
+  }
+
+  @Override
+  public ITile visitPebbles(Pebbles pebb) {
+    // TODO Auto-generated method stub
+    return pebb;
+  }
+  
+}
+
+// Produces a single pebble (which is part of a pile, hence true)
+// to replace the given tile
+class OnePebbleInPile implements IFuncTile<ITile> {
+
+  @Override
+  public ITile apply(ITile arg) {
+    // TODO Auto-generated method stub
+    return arg.accept(this);
+  }
+
+  @Override
+  public ITile visitGrass(Grass grass) {
+    // TODO Auto-generated method stub
+    return new Pebbles(grass.gridLocation, true);
+  }
+
+  @Override
+  public ITile visitDandelions(Dandelions dande) {
+    // TODO Auto-generated method stub
+    return new Pebbles(dande.gridLocation, true);
+  }
+
+  @Override
+  public ITile visitPebbles(Pebbles pebb) {
+    // TODO Auto-generated method stub
+    return new Pebbles(pebb.gridLocation, true);
+  }
+  
+}
+
+class ProducePebblePile implements IFunc<Board, Board> {
+
+  Posn centerPos;
+  
+  ProducePebblePile(Posn centerPos) {
+    this.centerPos = centerPos;
+  }
+  
+  @Override
+  // produces a pebble in a cross centered at the given location 
+  // which is part of a pile (hence true) because of explosion
+  public Board apply(Board arg) {
+    // TODO Auto-generated method stub
+    
+    Posn upPos = new Posn(this.centerPos.x, this.centerPos.y + 1);
+    Posn downPos = new Posn(this.centerPos.x, this.centerPos.y - 1);
+    Posn leftPos = new Posn(this.centerPos.x - 1, this.centerPos.y);
+    Posn rightPos = new Posn(this.centerPos.x + 1, this.centerPos.y);
+    
+    IFuncTile<ITile> toPebb = new OnePebbleInPile();
+    Board changedCenter = new ApplyAtXY(this.centerPos, toPebb).apply(arg);
+    Board changedUp = new ApplyAtXY(upPos, toPebb).apply(changedCenter);
+    Board changedDown = new ApplyAtXY(downPos, toPebb).apply(changedUp);
+    Board changedLeft = new ApplyAtXY(leftPos, toPebb).apply(changedDown);
+    Board changedRight = new ApplyAtXY(rightPos, toPebb).apply(changedLeft);
+    
+    return changedRight;
+
+  }
+  
+}
+
 
 // clicks a tile
 class ClickFunc implements IFuncTile<ITile> {

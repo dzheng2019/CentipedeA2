@@ -1468,8 +1468,8 @@ class ExamplesAll {
    * and updates it fields using the methods tested above
    */
   
-  int rowW = 6;
-  int colL = 6;
+  int rowW = 10;
+  int colL = 10;
 
   boolean testBigBang(Tester t) {
     World w = new StartingWorld(rowW, colL);
